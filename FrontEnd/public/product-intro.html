@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17211d" />
+  <meta name="description" content="Know-how Hub 产品介绍——让真实问题找到实践者，让经验成为可执行的答案。" />
+  <link rel="icon" href="/favicon.svg" />
+  <title>Know-how Hub — 让实践经验流动起来</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap');
+    :root {
+      --ink: #17211d;
+      --paper: #f5f2e9;
+      --white: #fffefa;
+      --muted: #87928c;
+      --line: rgba(255,255,255,.16);
+      --accent: #ff6b35;
+      --green: #8ad3ae;
+      --serif: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --sans: 'Noto Sans SC', 'PingFang SC', sans-serif;
+      --mono: 'DM Mono', monospace;
+      --card-radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    body::before { position: fixed; z-index: 20; inset: 0; pointer-events: none; content: ''; opacity: .12; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E"); }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .nav { position: fixed; z-index: 10; inset: 0 0 auto; display: flex; height: 72px; padding: 0 max(28px, calc((100vw - 1240px)/2)); color: #fff; background: rgba(23,33,29,.9); border-bottom: 1px solid var(--line); backdrop-filter: blur(13px); align-items: center; justify-content: space-between; }
+    .brand { display: flex; width: 190px; padding: 6px 9px; border: 1px solid rgba(255,255,255,.14); background: var(--paper); align-items: center; }
+    .brand img { display: block; width: 100%; height: auto; }
+    .nav-links { display: flex; color: #b9c2be; font-size: 12px; align-items: center; gap: 28px; }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta { padding: 10px 15px; color: #fff !important; background: var(--accent); }
+    .hero { position: relative; display: flex; overflow: hidden; min-height: 100vh; padding: 140px max(28px, calc((100vw - 1240px)/2)) 80px; color: #fff; background: var(--ink); align-items: center; }
+    .hero::before { position: absolute; top: 0; right: -10vw; width: 65vw; height: 100%; content: ''; opacity: .46; background: repeating-linear-gradient(90deg, transparent 0, transparent 99px, rgba(255,255,255,.07) 100px), repeating-linear-gradient(0deg, transparent 0, transparent 99px, rgba(255,255,255,.07) 100px); transform: skewX(-10deg); }
+    .hero-copy { position: relative; z-index: 1; max-width: 940px; }
+    .kicker { display: flex; color: #ff9c78; font: 12px var(--mono); letter-spacing: 2px; align-items: center; gap: 14px; }
+    .kicker::after { width: 70px; height: 1px; background: currentColor; content: ''; opacity: .45; }
+    h1 { max-width: 940px; margin: 25px 0 23px; font-family: var(--serif); font-size: clamp(54px, 7.4vw, 105px); letter-spacing: -3px; line-height: 1.08; }
+    h1 em { color: var(--accent); font-style: normal; }
+    .hero-lede { max-width: 720px; margin: 0; color: #b2bcb7; font-size: 16px; line-height: 2; }
+    .hero-actions { display: flex; margin-top: 36px; align-items: center; gap: 11px; }
+    .button { display: inline-flex; min-height: 51px; padding: 0 22px; border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: 12px; font-weight: 600; align-items: center; gap: 15px; transition: transform .2s, background .2s; }
+    .button:hover { transform: translateY(-3px); }
+    .button.primary { border-color: var(--accent); background: var(--accent); }
+    .button.primary:hover { background: #dc501e; }
+    .hero-note { position: absolute; right: max(28px, calc((100vw - 1240px)/2)); bottom: 45px; display: flex; color: #74817b; font: 12px var(--mono); writing-mode: vertical-rl; letter-spacing: 2px; align-items: center; gap: 13px; }
+    .hero-note::after { width: 1px; height: 60px; background: #74817b; content: ''; }
+    .manifesto { display: grid; max-width: 1240px; margin: 0 auto; padding: 125px 28px; grid-template-columns: 1fr 1.2fr; gap: 110px; }
+    .section-label { color: #d64e1c; font: 12px var(--mono); letter-spacing: 2px; }
+    .manifesto h2, .section-title { margin: 15px 0 0; font-family: var(--serif); font-size: clamp(34px, 4.5vw, 62px); letter-spacing: -1.5px; line-height: 1.3; }
+    .manifesto-body > p { margin: 0 0 24px; color: #3d4a43; font-size: 15px; line-height: 2.1; }
+    .manifesto-body strong { color: var(--ink); font-family: var(--serif); font-size: 18px; }
+    .definition { display: grid; margin-top: 38px; border-top: 1px solid #c8cbc1; grid-template-columns: repeat(2, 1fr); }
+    .definition div { padding: 19px 12px 19px 0; border-bottom: 1px solid #d9dbd2; color: #657069; font-size: 12px; }
+    .definition b { display: block; margin-bottom: 4px; color: var(--ink); font: 12px var(--mono); }
+    .flow-section { padding: 110px max(28px, calc((100vw - 1240px)/2)); color: #fff; background: var(--ink); }
+    .section-head { display: flex; margin-bottom: 60px; align-items: flex-end; justify-content: space-between; gap: 30px; }
+    .section-head .section-title { max-width: 790px; }
+    .section-head p { max-width: 340px; margin: 0; color: #9ca8a2; font-size: 12px; line-height: 1.8; }
+    .flow { display: grid; overflow: hidden; border-radius: var(--card-radius); grid-template-columns: repeat(5, 1fr); }
+    .flow-step { position: relative; min-height: 275px; padding: 23px; border: 1px solid var(--line); border-right: 0; }
+    .flow-step:last-child { border-right: 1px solid var(--line); }
+    .flow-step::after { position: absolute; z-index: 2; top: 50%; right: -12px; display: grid; width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); background: var(--ink); content: '→'; font: 12px var(--mono); place-items: center; transform: translateY(-50%); }
+    .flow-step:last-child::after { display: none; }
+    .flow-step > span { color: #66746d; font: 12px var(--mono); }
+    .flow-step i { display: grid; width: 38px; height: 38px; margin: 42px 0 20px; border-radius: 50%; color: var(--ink); background: var(--accent); font-family: var(--serif); font-style: normal; font-weight: 900; place-items: center; }
+    .flow-step:nth-child(4) i, .flow-step:nth-child(5) i { background: var(--green); }
+    .flow-step h3 { margin: 0 0 10px; font-family: var(--serif); font-size: 18px; }
+    .flow-step p { margin: 0; color: #91a099; font-size: 12px; line-height: 1.8; }
+    .agents { max-width: 1240px; margin: 0 auto; padding: 125px 28px; }
+    .agents .section-title { max-width: 850px; }
+    .agent-grid { display: grid; margin-top: 55px; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .agent-card { position: relative; overflow: hidden; min-height: 380px; padding: 28px; border: 1px solid #d1d3ca; border-radius: var(--card-radius); background: var(--white); }
+    .agent-card::before { position: absolute; right: -60px; bottom: -90px; width: 220px; height: 220px; border: 1px solid #e3e1d9; border-radius: 50%; content: ''; box-shadow: 0 0 0 35px rgba(23,33,29,.018), 0 0 0 70px rgba(23,33,29,.012); }
+    .agent-no { color: var(--accent); font: 12px var(--mono); }
+    .agent-card h3 { margin: 55px 0 7px; font-family: var(--serif); font-size: 27px; }
+    .agent-card > p { margin: 0 0 25px; color: #78837d; font-size: 12px; line-height: 1.8; }
+    .agent-card ul { position: relative; z-index: 1; display: grid; margin: 0; padding: 0; list-style: none; gap: 11px; }
+    .agent-card li { display: flex; color: #39473f; font-size: 12px; align-items: center; gap: 8px; }
+    .agent-card li::before { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); content: ''; }
+    .agent-card:nth-child(2) { color: #fff; background: var(--ink); transform: translateY(22px); }
+    .agent-card:nth-child(2) > p, .agent-card:nth-child(2) li { color: #a9b4ae; }
+    .agent-card:nth-child(2)::before { border-color: rgba(255,255,255,.1); }
+    .network { padding: 120px max(28px, calc((100vw - 1240px)/2)); background: #eae7dc; }
+    .roles { display: grid; overflow: hidden; margin-top: 55px; border-top: 1px solid #c4c7bc; border-radius: var(--card-radius); grid-template-columns: repeat(4, 1fr); }
+    .role { min-height: 250px; padding: 25px 22px; border-right: 1px solid #c4c7bc; border-bottom: 1px solid #c4c7bc; }
+    .role:first-child { border-left: 1px solid #c4c7bc; }
+    .role span { color: var(--accent); font: 12px var(--mono); }
+    .role h3 { margin: 60px 0 11px; font-family: var(--serif); font-size: 20px; }
+    .role p { margin: 0; color: #69746e; font-size: 12px; line-height: 1.8; }
+    .closing { display: grid; min-height: 650px; padding: 100px max(28px, calc((100vw - 1240px)/2)); color: #fff; background: var(--accent); place-items: center; text-align: center; }
+    .closing h2 { max-width: 970px; margin: 0 0 22px; font-family: var(--serif); font-size: clamp(48px, 7vw, 94px); letter-spacing: -2.5px; line-height: 1.13; }
+    .closing p { max-width: 650px; margin: 0 auto 32px; color: #ffe1d5; font-size: 13px; line-height: 1.9; }
+    .closing .button { color: #fff; border-color: var(--ink); background: var(--ink); }
+    footer { display: flex; padding: 35px max(28px, calc((100vw - 1240px)/2)); color: #9aa59f; background: var(--ink); font: 12px var(--mono); justify-content: space-between; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    @media (max-width: 900px) {
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { min-height: 880px; padding-top: 125px; align-items: flex-start; }
+      h1 { margin-top: 45px; font-size: 61px; letter-spacing: -2px; }
+      .manifesto { grid-template-columns: 1fr; gap: 42px; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .flow-step { min-height: 235px; border-right: 1px solid var(--line); }
+      .flow-step::after { display: none; }
+      .agent-grid { grid-template-columns: 1fr; }
+      .agent-card:nth-child(2) { transform: none; }
+      .roles { grid-template-columns: 1fr 1fr; }
+      .role:nth-child(3) { border-left: 1px solid #c4c7bc; }
+    }
+    @media (max-width: 560px) {
+      .nav { height: 62px; padding: 0 18px; }
+      .nav-cta { padding: 8px 10px; font-size: 12px; }
+      .hero { min-height: 790px; padding: 105px 19px 65px; }
+      h1 { margin-top: 38px; font-size: 45px; letter-spacing: -1.5px; }
+      .hero-lede { font-size: 12px; }
+      .hero-actions { align-items: stretch; flex-direction: column; }
+      .button { justify-content: center; }
+      .hero-note { display: none; }
+      .manifesto, .agents { padding: 85px 19px; }
+      .definition { grid-template-columns: 1fr; }
+      .flow-section, .network { padding: 85px 19px; }
+      .flow { grid-template-columns: 1fr; }
+      .flow-step { min-height: 215px; }
+      .flow-step i { margin-top: 28px; }
+      .roles { grid-template-columns: 1fr; }
+      .role, .role:nth-child(3) { min-height: 210px; border-left: 1px solid #c4c7bc; }
+      .role h3 { margin-top: 42px; }
+      .closing { min-height: 560px; padding: 70px 19px; }
+      .closing h2 { font-size: 49px; letter-spacing: -1.5px; }
+      footer { padding: 28px 19px; flex-direction: column; gap: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; transition: none; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#top"><img src="/assets/360-zhihui-logo.png" alt="360智汇 · Know-how Hub" /></a>
+    <div class="nav-links">
+      <a href="#why">产品愿景</a>
+      <a href="#flow">核心流程</a>
+      <a href="#agents">三类 Agent</a>
+      <a href="#roles">用户价值</a>
+      <a class="nav-cta" href="/">进入产品 Demo →</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <span class="kicker">KNOWLEDGE, IN PRACTICE / 实践知识网络</span>
+      <h1>让真实问题，<br />找到<em>做过的人。</em></h1>
+      <p class="hero-lede">Know-how Hub 是一个从真实需求出发的实践知识市场。多人贡献各自走过的路，AI 负责澄清、访谈、萃取与溯源，最终交付一份真正能指导行动的 Know-how。</p>
+      <div class="hero-actions">
+        <a class="button primary" href="/">进入任务市场 <span>→</span></a>
+        <a class="button" href="#flow">看看它怎样运转 <span>↓</span></a>
+      </div>
+    </div>
+    <span class="hero-note">SCROLL TO EXPLORE</span>
+  </header>
+
+  <section class="manifesto reveal" id="why">
+    <div>
+      <span class="section-label">01 / WHY KNOW-HOW</span>
+      <h2>知识很多，<br />但“真正怎么做”<br />依然稀缺。</h2>
+    </div>
+    <div class="manifesto-body">
+      <p><strong>概念可以搜索，经验却往往散落在人的判断和细节里。</strong></p>
+      <p>面对一个具体问题，人们需要的不是更多定义，而是谁遇到过类似处境、当时怎样判断、按什么顺序行动、哪里最容易失败，以及如何知道结果真的有效。</p>
+      <p>Know-how Hub 把这些隐性的实践经验转化为可理解、可执行、可验证、可复用、可持续迭代的结构化 Know-how 包。它既服务人的实践，也成为 AI 可以直接利用的专业上下文。</p>
+      <div class="definition">
+        <div><b>01 / LOGIC</b>思路与判断逻辑</div>
+        <div><b>02 / ACTION</b>流程、步骤与关键动作</div>
+        <div><b>03 / DETAIL</b>技巧、误区与专业细节</div>
+        <div><b>04 / VERIFY</b>模板、案例与检查标准</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="flow-section" id="flow">
+    <div class="section-head reveal">
+      <div><span class="section-label">02 / THE LOOP</span><h2 class="section-title">一个问题，怎样变成可复用的答案？</h2></div>
+      <p>每一次解决新问题，都在为公共 Know-how 增加内容、证据或新版本。</p>
+    </div>
+    <div class="flow reveal">
+      <div class="flow-step"><span>STEP 01</span><i>问</i><h3>描述真实问题</h3><p>任务 Agent 通过对话澄清目标、背景、限制与期望结果。</p></div>
+      <div class="flow-step"><span>STEP 02</span><i>找</i><h3>匹配已有经验</h3><p>搜索相关 Know-how，判断满足程度并识别信息缺口。</p></div>
+      <div class="flow-step"><span>STEP 03</span><i>集</i><h3>多人密封贡献</h3><p>实践者通过访谈、撰写或上传内容，分别提供真实经验。</p></div>
+      <div class="flow-step"><span>STEP 04</span><i>萃</i><h3>评估、冲突与溯源</h3><p>萃取 Agent 保留不同方案及适用边界，标记每项来源。</p></div>
+      <div class="flow-step"><span>STEP 05</span><i>长</i><h3>交付并形成版本</h3><p>自动分配积分、生成新版本，继续服务更多相似问题。</p></div>
+    </div>
+  </section>
+
+  <section class="agents" id="agents">
+    <span class="section-label">03 / AI NATIVE CORE</span>
+    <h2 class="section-title reveal">三类 Agent，围绕一个结果协作：<br />把事情真正做成。</h2>
+    <div class="agent-grid reveal">
+      <article class="agent-card"><span class="agent-no">AGENT / 01</span><h3>任务 Agent</h3><p>站在需求方身边，把模糊困扰变成可以被回答的好问题。</p><ul><li>澄清真实目标和约束</li><li>检索已有 Know-how</li><li>识别缺口并生成任务</li><li>准备后续访谈提纲</li></ul></article>
+      <article class="agent-card"><span class="agent-no">AGENT / 02</span><h3>对话 Agent</h3><p>像一位有准备的访谈者，帮助实践者说出写作难以表达的细节。</p><ul><li>从真实案例开始追问</li><li>捕捉判断依据和例外</li><li>支持文档上传和续聊</li><li>生成可编辑的结构化贡献</li></ul></article>
+      <article class="agent-card"><span class="agent-no">AGENT / 03</span><h3>萃取 Agent</h3><p>不追求把所有观点压成一个答案，而是呈现共识、差异与边界。</p><ul><li>评估多份独立贡献</li><li>识别冲突和信息缺口</li><li>保留来源与采纳关系</li><li>按贡献程度自动分配积分</li></ul></article>
+    </div>
+  </section>
+
+  <section class="network" id="roles">
+    <span class="section-label">04 / A GROWING NETWORK</span>
+    <h2 class="section-title reveal">每一种参与，<br />都让实践知识网络更完整。</h2>
+    <div class="roles reveal">
+      <article class="role"><span>01</span><h3>有实际难题的人</h3><p>从模糊困扰出发，获得结合真实经验、能直接指导行动的综合成果。</p></article>
+      <article class="role"><span>02</span><h3>领域实践者</h3><p>把隐性经验变成可复用的能力资产，积累署名、领域声誉与积分回报。</p></article>
+      <article class="role"><span>03</span><h3>AI / Agent 开发者</h3><p>获得结构清晰、来源可追溯、持续迭代的专业上下文。</p></article>
+      <article class="role"><span>04</span><h3>企业与团队</h3><p>让分散在个人身上的经验成为组织可以传承和复用的实践资产。</p></article>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="reveal">
+      <h2>从一个真实问题开始。</h2>
+      <p>看看市场里是否已经有人走过这段路；如果答案还不够，就发出一次新的征集，让 Know-how 继续生长。</p>
+      <a class="button" href="/">进入 Know-how Hub <span>→</span></a>
+    </div>
+  </section>
+
+  <footer><span>KNOW-HOW HUB © 2026</span><span>TURN EXPERIENCE INTO SHARED CAPABILITY.</span></footer>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('visible'));
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach((node) => observer.observe(node));
+  </script>
+</body>
+</html>
