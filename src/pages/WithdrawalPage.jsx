@@ -89,7 +89,7 @@ export default function WithdrawalPage() {
             <div><dt>提现单号</dt><dd>{result.id}</dd></div>
           </dl>
           <div className="withdraw-success-actions">
-            <button onClick={() => navigate('/profile')}>返回个人中心</button>
+            <button className="back-button" onClick={() => navigate('/profile')}><ArrowLeft size={17} />返回个人中心</button>
             <button onClick={() => setResult(null)}>继续查看收益</button>
           </div>
           <small>当前为产品 Demo，不会产生真实资金转账。</small>
@@ -101,7 +101,7 @@ export default function WithdrawalPage() {
   return (
     <div className="withdrawal-page">
       <header className="withdrawal-header">
-        <button onClick={() => navigate('/profile')}><ArrowLeft size={17} />个人中心</button>
+        <button className="back-button" onClick={() => navigate('/profile')}><ArrowLeft size={17} />返回个人中心</button>
         <div>
           <span className="page-kicker">CONTRIBUTOR PAYOUT</span>
           <h1>贡献收益提现</h1>

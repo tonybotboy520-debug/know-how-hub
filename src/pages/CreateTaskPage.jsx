@@ -86,7 +86,7 @@ export default function CreateTaskPage() {
         <p>{draft.reward} 积分已冻结。任务截止后，萃取 Agent 将自动整合有效贡献并完成分配。</p>
         <div className="success-actions">
           <button className="primary-button" onClick={() => navigate('/workspace/tasks')}>查看我的任务<ArrowRight size={17} /></button>
-          <button className="outline-button" onClick={() => navigate('/')}>返回任务市场</button>
+          <button className="back-button" onClick={() => navigate('/')}><ArrowLeft size={17} />返回任务市场</button>
         </div>
       </div>
     );

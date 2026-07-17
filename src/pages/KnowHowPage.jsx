@@ -2,19 +2,26 @@ import {
   ArrowLeft,
   BadgeCheck,
   BookOpenText,
+  Braces,
   Check,
   ChevronRight,
   CircleAlert,
+  Copy,
   GitBranch,
   History,
+  KeyRound,
   Link2,
   MessageCircle,
+  Power,
   Quote,
+  RefreshCw,
   Share2,
+  ShieldCheck,
   Sparkles,
   UsersRound,
+  X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { knowHows, tasks } from '../data';
 import { Avatar, SelectMenu, Tag } from '../components/Ui';
@@ -112,12 +119,41 @@ export default function KnowHowPage() {
   const sections = detail.sections;
   const [version, setVersion] = useState(item.version);
   const [comment, setComment] = useState('');
+  const [skillDialogOpen, setSkillDialogOpen] = useState(false);
+  const [skillKey, setSkillKey] = useState('');
+  const [keyHasBeenIssued, setKeyHasBeenIssued] = useState(false);
   const [comments, setComments] = useState([
     { name: '梁知远', initials: '梁', time: '2 小时前', text: `第 3 节的复测方法很实用。我们在“${item.tags[0]}”项目中也会保留完整变更记录，避免把口径变化误判为效果提升。` },
     { name: '沈知行', initials: '沈', time: '昨天', text: '建议继续补充跨部门责任边界：事实、规则和系统配置发生冲突时，必须明确由谁做最终确认。' },
   ]);
   const followed = followedKnowHows.includes(item.id);
   const sourceTask = tasks.find((task) => task.id === item.sourceTask);
+  const skillEndpoint = `https://api.knowhowhub.com/v1/skills/${item.id}/run`;
+  const curlExample = `curl --request POST '${skillEndpoint}' \\
+  --header 'Authorization: Bearer $KNOWHOW_HUB_API_KEY' \\
+  --header 'Content-Type: application/json' \\
+  --data '{
+    "input": "请结合当前业务背景完成任务",
+    "context": {
+      "industry": "企业服务"
+    }
+  }'`;
+
+  useEffect(() => {
+    if (!skillDialogOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') {
+        setSkillDialogOpen(false);
+        setSkillKey('');
+      }
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [skillDialogOpen]);
 
   const follow = () => {
     if (!user) return navigate('/login');
@@ -130,14 +166,43 @@ export default function KnowHowPage() {
     setComment('');
     notify('评论已发布到当前版本');
   };
+  const openSkillDialog = () => {
+    if (!user) return navigate('/login');
+    setSkillDialogOpen(true);
+  };
+  const closeSkillDialog = () => {
+    setSkillDialogOpen(false);
+    setSkillKey('');
+  };
+  const generateSkillKey = () => {
+    const randomValues = window.crypto.getRandomValues(new Uint32Array(3));
+    const token = Array.from(randomValues, (value) => value.toString(36).padStart(7, '0')).join('');
+    setSkillKey(`kh_live_${token}`);
+    setKeyHasBeenIssued(true);
+    notify(keyHasBeenIssued ? '新密钥已生成，旧密钥已失效' : '访问密钥已生成');
+  };
+  const revokeSkillKey = () => {
+    setSkillKey('');
+    setKeyHasBeenIssued(false);
+    notify('访问密钥已停用');
+  };
+  const copyText = async (value, label) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      notify(`${label}已复制`);
+    } catch {
+      notify('复制失败，请手动选择复制');
+    }
+  };
 
   return (
-    <div className="page knowhow-page">
+    <div className={`page knowhow-page ${skillDialogOpen ? 'dialog-open' : ''}`}>
       <div className="detail-nav">
         <button className="back-button" onClick={() => navigate(-1)}><ArrowLeft size={17} />返回</button>
         <div>
           <button className="icon-button" onClick={() => notify('链接已复制')}><Share2 size={17} /></button>
           <button className={`outline-button ${followed ? 'selected' : ''}`} onClick={follow}>{followed ? <Check size={16} /> : <BookOpenText size={16} />}{followed ? '已关注' : '关注更新'}</button>
+          <button className="skill-entry-button" onClick={openSkillDialog}><Braces size={17} />获取 AI Skill 接口</button>
         </div>
       </div>
       <header className="knowhow-hero">
@@ -203,6 +268,65 @@ export default function KnowHowPage() {
           </section>
         </article>
       </div>
+      {skillDialogOpen && (
+        <div className="skill-dialog-backdrop" onMouseDown={(event) => event.target === event.currentTarget && closeSkillDialog()}>
+          <section className="skill-dialog" role="dialog" aria-modal="true" aria-labelledby="skill-dialog-title">
+            <header className="skill-dialog-header">
+              <div className="skill-dialog-mark"><Braces size={23} /></div>
+              <div>
+                <span className="page-kicker">AI SKILL ACCESS</span>
+                <h2 id="skill-dialog-title">接入这个 Know-how</h2>
+                <p>获取接口和访问密钥，把专业能力接入你的 Agent 或产品。</p>
+              </div>
+              <button className="skill-dialog-close" onClick={closeSkillDialog} aria-label="关闭"><X size={20} /></button>
+            </header>
+
+            <div className="skill-access-status">
+              <span><ShieldCheck size={17} />当前账号已获得使用权</span>
+              <strong>{version} · 已锁定</strong>
+            </div>
+
+            <div className="skill-field">
+              <div className="skill-field-heading">
+                <div><i>01</i><span><strong>接口地址</strong><small>使用 POST 发起一次有效执行</small></span></div>
+                <button onClick={() => copyText(skillEndpoint, '接口地址')}><Copy size={15} />复制</button>
+              </div>
+              <code className="skill-inline-code">{skillEndpoint}</code>
+            </div>
+
+            <div className="skill-field">
+              <div className="skill-field-heading">
+                <div><i>02</i><span><strong>访问密钥</strong><small>绑定当前账号与此 Skill，仅在生成后完整显示一次</small></span></div>
+              </div>
+              {!keyHasBeenIssued ? (
+                <button className="skill-generate-button" onClick={generateSkillKey}><KeyRound size={18} /><span><strong>生成访问密钥</strong><small>用于校验使用权、额度和接入版本</small></span><ChevronRight size={18} /></button>
+              ) : (
+                <>
+                  <div className={`skill-key-row ${skillKey ? 'is-revealed' : ''}`}>
+                    <code>{skillKey || 'kh_live_•••••••••••••••••••••'}</code>
+                    {skillKey && <button onClick={() => copyText(skillKey, '访问密钥')}><Copy size={15} />复制密钥</button>}
+                  </div>
+                  <div className="skill-key-actions">
+                    <span>{skillKey ? '请现在复制并妥善保存，关闭后将不再完整显示。' : '已有密钥正在使用。如已遗失，请重新生成。'}</span>
+                    <div>
+                      <button onClick={generateSkillKey}><RefreshCw size={14} />重新生成</button>
+                      <button onClick={revokeSkillKey}><Power size={14} />停用</button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="skill-field skill-example">
+              <div className="skill-field-heading">
+                <div><i>03</i><span><strong>最小调用示例</strong><small>接口只返回业务结果，不返回 Know-how 完整内容</small></span></div>
+                <button onClick={() => copyText(curlExample, '调用示例')}><Copy size={15} />复制</button>
+              </div>
+              <pre><code>{curlExample}</code></pre>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

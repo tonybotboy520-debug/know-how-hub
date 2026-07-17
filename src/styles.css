@@ -172,8 +172,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .icon-button:hover { color: var(--accent-dark); border-color: var(--accent); }
 .icon-button.danger:hover { color: var(--red); border-color: var(--red); }
 .text-button { padding: 0; border: 0; background: transparent; color: var(--accent-dark); font-size: 12px; }
-.back-button { padding: 0; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
-.back-button:hover { color: var(--ink); }
+.back-button { min-width: 124px; min-height: 42px; padding: 0 16px; border: 1px solid var(--line-dark); color: var(--ink); background: var(--white); font-size: 13px; font-weight: 700; transition: color .18s, border-color .18s, background .18s, transform .18s; }
+.back-button:hover { color: var(--accent-dark); border-color: var(--accent); background: var(--accent-pale); transform: translateX(-2px); }
 .page-kicker, .hero-kicker, .content-number, .section-number, .know-card-index {
   color: var(--accent-dark);
   font-family: var(--mono);
@@ -731,6 +731,48 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .comment strong span { color: var(--muted); font-size: 12px; font-weight: 400; }
 .comment p { margin: 7px 0; color: var(--ink-2); font-size: 12px; line-height: 1.8; }
 .comment button { display: flex; padding: 0; border: 0; color: var(--muted); background: transparent; cursor: pointer; font-size: 12px; align-items: center; gap: 4px; }
+.skill-entry-button { display: inline-flex; min-height: 36px; padding: 0 15px; border: 1px solid var(--ink); color: #fff; background: var(--ink); cursor: pointer; font-size: 12px; font-weight: 700; align-items: center; gap: 7px; transition: background .18s, border-color .18s, transform .18s; }
+.skill-entry-button:hover { border-color: var(--accent-dark); background: var(--accent-dark); transform: translateY(-1px); }
+.page.dialog-open { animation: none; }
+.skill-dialog-backdrop { position: fixed; z-index: 80; inset: 0; display: grid; padding: 26px; background: rgba(23,33,29,.62); backdrop-filter: blur(4px); place-items: center; }
+.skill-dialog { overflow: auto; width: min(760px, 100%); max-height: min(880px, calc(100vh - 52px)); border: 1px solid var(--line-dark); background: var(--paper); box-shadow: 15px 15px 0 rgba(20,28,25,.22); }
+.skill-dialog-header { position: relative; display: grid; min-height: 124px; padding: 25px 62px 24px 27px; border-bottom: 1px solid var(--line-dark); background: var(--white); grid-template-columns: 49px 1fr; align-items: start; gap: 16px; }
+.skill-dialog-mark { display: grid; width: 48px; height: 48px; color: #fff; background: var(--accent); place-items: center; }
+.skill-dialog-header h2 { margin: 5px 0 5px; font-family: var(--serif); font-size: 27px; letter-spacing: -.7px; }
+.skill-dialog-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.skill-dialog-close { position: absolute; top: 17px; right: 17px; display: grid; width: 36px; height: 36px; border: 1px solid var(--line); background: transparent; cursor: pointer; place-items: center; }
+.skill-dialog-close:hover { border-color: var(--ink); }
+.skill-access-status { display: flex; min-height: 47px; padding: 0 27px; color: var(--green); border-bottom: 1px solid #cbe0d5; background: var(--green-pale); font-size: 12px; align-items: center; justify-content: space-between; gap: 15px; }
+.skill-access-status span { display: inline-flex; font-weight: 700; align-items: center; gap: 7px; }
+.skill-access-status strong { color: #466c5f; font-family: var(--mono); font-size: 12px; }
+.skill-field { padding: 22px 27px 23px; border-bottom: 1px solid var(--line); }
+.skill-field:last-child { border-bottom: 0; }
+.skill-field-heading { display: flex; margin-bottom: 12px; align-items: center; justify-content: space-between; gap: 18px; }
+.skill-field-heading > div { display: flex; align-items: center; gap: 10px; }
+.skill-field-heading i { color: var(--accent-dark); font-family: var(--mono); font-size: 12px; font-style: normal; }
+.skill-field-heading span { display: flex; flex-direction: column; gap: 2px; }
+.skill-field-heading strong { font-size: 14px; }
+.skill-field-heading small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.skill-field-heading > button, .skill-key-row button, .skill-key-actions button { display: inline-flex; padding: 6px 8px; border: 0; color: var(--accent-dark); background: transparent; cursor: pointer; font-size: 12px; align-items: center; gap: 5px; white-space: nowrap; }
+.skill-field-heading > button:hover, .skill-key-actions button:hover { background: var(--accent-pale); }
+.skill-inline-code, .skill-key-row { display: flex; min-height: 43px; padding: 11px 13px; border: 1px solid var(--line-dark); color: var(--ink); background: var(--white); font-family: var(--mono); font-size: 12px; line-height: 1.6; align-items: center; overflow-wrap: anywhere; }
+.skill-generate-button { display: grid; width: 100%; min-height: 64px; padding: 12px 14px; border: 1px solid var(--line-dark); color: var(--ink); background: var(--white); cursor: pointer; text-align: left; grid-template-columns: 31px 1fr auto; align-items: center; gap: 8px; transition: border-color .18s, transform .18s, box-shadow .18s; }
+.skill-generate-button:hover { border-color: var(--accent); box-shadow: 4px 4px 0 var(--accent-pale); transform: translate(-1px, -1px); }
+.skill-generate-button > svg:first-child { color: var(--accent-dark); }
+.skill-generate-button span { display: flex; flex-direction: column; gap: 3px; }
+.skill-generate-button strong { font-size: 13px; }
+.skill-generate-button small { color: var(--muted); font-size: 12px; }
+.skill-key-row { justify-content: space-between; gap: 14px; }
+.skill-key-row.is-revealed { border-color: #a9cfba; background: var(--green-pale); }
+.skill-key-row code { min-width: 0; font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+.skill-key-row button { flex: 0 0 auto; color: var(--green); }
+.skill-key-actions { display: flex; margin-top: 8px; align-items: center; justify-content: space-between; gap: 12px; }
+.skill-key-actions > span { color: var(--muted); font-size: 12px; line-height: 1.55; }
+.skill-key-actions > div { display: flex; flex: 0 0 auto; gap: 3px; }
+.skill-key-actions button:last-child { color: #94634f; }
+.skill-example { background: var(--white); }
+.skill-example pre { overflow-x: auto; margin: 0; padding: 17px 18px; color: #dae3df; background: var(--ink); font-family: var(--mono); font-size: 12px; line-height: 1.75; white-space: pre; }
+.skill-example pre code { font: inherit; }
 
 /* Personal workspaces */
 .workspace-page, .profile-page { min-height: 100vh; padding: 58px clamp(32px, 5vw, 70px) 90px; background: var(--paper); }
@@ -902,6 +944,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .pagination { grid-template-columns: 1fr; justify-items: center; gap: 12px; }
   .pagination-summary, .pagination-page { text-align: center; }
   .detail-nav { min-height: 55px; padding: 0 17px; }
+  .detail-nav > div { gap: 6px; }
+  .detail-nav .skill-entry-button { padding: 0 11px; }
   .task-detail-hero { padding: 32px 18px; background: var(--white); grid-template-columns: 1fr; gap: 25px; }
   .task-detail-main h1 { font-size: 32px; letter-spacing: -1.3px; }
   .detail-lede { font-size: 12px; }
@@ -954,6 +998,16 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .week-list em { display: none; }
   .source-note { align-items: flex-start; flex-wrap: wrap; }
   .source-note button { width: 100%; margin: 4px 0 0 23px; }
+  .skill-dialog-backdrop { padding: 0; place-items: end center; }
+  .skill-dialog { width: 100%; max-height: calc(100vh - 28px); border-width: 1px 0 0; box-shadow: none; }
+  .skill-dialog-header { min-height: 114px; padding: 21px 52px 20px 18px; grid-template-columns: 43px 1fr; gap: 12px; }
+  .skill-dialog-mark { width: 42px; height: 42px; }
+  .skill-dialog-header h2 { font-size: 23px; }
+  .skill-access-status { padding: 0 18px; }
+  .skill-field { padding: 19px 18px 20px; }
+  .skill-field-heading { align-items: flex-start; }
+  .skill-key-actions { align-items: flex-start; flex-direction: column; }
+  .skill-example pre { font-size: 12px; }
   .workspace-header { align-items: flex-start; flex-direction: column; }
   .workspace-stats { grid-template-columns: 1fr; }
   .workspace-stats > div { min-height: 90px; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -987,6 +1041,13 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .summary-points strong { font-size: 16px; }
   .comment-compose { grid-template-columns: 32px 1fr; }
   .comment-compose button { grid-column: 2; justify-self: end; }
+  .detail-nav .outline-button { display: none; }
+  .detail-nav .skill-entry-button { font-size: 12px; }
+  .skill-access-status { align-items: flex-start; padding-top: 10px; padding-bottom: 10px; flex-direction: column; justify-content: center; gap: 3px; }
+  .skill-field-heading { flex-wrap: wrap; }
+  .skill-inline-code { font-size: 12px; }
+  .skill-key-row { align-items: stretch; flex-direction: column; }
+  .skill-key-row button { align-self: flex-start; padding-left: 0; }
   .success-actions { width: 100%; flex-direction: column; }
 }
 
@@ -1161,7 +1222,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 /* Contributor withdrawal */
 .withdrawal-page { min-height: 100vh; padding: 52px clamp(30px, 5vw, 72px) 100px; background: var(--paper); }
 .withdrawal-header { display: grid; max-width: 1240px; margin: 0 auto 30px; grid-template-columns: 150px minmax(0, 1fr) 260px; align-items: end; gap: 30px; }
-.withdrawal-header > button { display: flex; width: max-content; padding: 0 0 7px; border: 0; border-bottom: 1px solid var(--line-dark); color: var(--muted); background: transparent; cursor: pointer; font-size: 12px; align-items: center; gap: 7px; }
+.withdrawal-header > button { width: max-content; min-width: 124px; min-height: 42px; padding: 0 16px; border: 1px solid var(--line-dark); color: var(--ink); background: var(--white); font-size: 13px; font-weight: 700; }
+.withdrawal-header > button:hover { color: var(--accent-dark); border-color: var(--accent); background: var(--accent-pale); }
 .withdrawal-header h1 { margin: 8px 0 9px; font-family: var(--serif); font-size: clamp(35px, 4vw, 50px); letter-spacing: -1.8px; }
 .withdrawal-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .withdrawal-policy { display: flex; min-height: 62px; padding: 13px 15px; border: 1px solid #b8d6c8; color: var(--green); background: var(--green-pale); align-items: center; gap: 10px; }
@@ -1269,6 +1331,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .withdraw-success-actions { display: flex; justify-content: center; gap: 8px; }
 .withdraw-success-actions button { min-height: 43px; padding: 0 18px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-size: 12px; }
 .withdraw-success-actions button:first-child { color: #fff; background: var(--ink); }
+.withdraw-success-actions .back-button { min-width: 124px; color: var(--ink); border-color: var(--line-dark); background: var(--white); font-size: 13px; font-weight: 700; }
+.withdraw-success-actions .back-button:hover { color: var(--accent-dark); border-color: var(--accent); background: var(--accent-pale); }
 .withdraw-success > small { display: block; margin-top: 16px; color: var(--muted); font-size: 12px; font-weight: 400; }
 .points-card-actions { flex-wrap: wrap; }
 .points-card-actions .withdraw-action { padding: 5px 8px; border: 1px solid var(--accent); color: var(--accent-dark); background: var(--accent-pale); }

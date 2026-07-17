@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowRight,
   Building2,
   Check,
@@ -113,7 +114,7 @@ export default function PurchasePointsPage() {
           </div>
           <div className="success-actions">
             <button className="primary-button" onClick={() => navigate('/create-task')}>发布 Know-how 任务<ArrowRight size={17} /></button>
-            <button className="outline-button" onClick={() => navigate('/')}>返回任务市场</button>
+            <button className="back-button" onClick={() => navigate('/')}><ArrowLeft size={17} />返回任务市场</button>
           </div>
           <button className="purchase-again" onClick={() => setCompletedPlan(null)}>继续购买积分</button>
         </section>

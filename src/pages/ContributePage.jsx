@@ -79,7 +79,7 @@ export default function ContributePage() {
         </div>
         <div className="success-actions">
           <button className="primary-button" onClick={() => navigate('/workspace/tasks')}>查看我的参与<ArrowRight size={17} /></button>
-          <button className="outline-button" onClick={() => navigate(`/task/${task.id}`)}>返回任务详情</button>
+          <button className="back-button" onClick={() => navigate(`/task/${task.id}`)}><ArrowLeft size={17} />返回任务详情</button>
         </div>
       </div>
     );
