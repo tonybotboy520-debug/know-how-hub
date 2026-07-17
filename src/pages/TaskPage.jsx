@@ -21,9 +21,9 @@ import { Avatar, StatusPill, Tag } from '../components/Ui';
 import { useDemo } from '../state/DemoContext';
 
 const contributions = [
-  { name: '许博', initials: '许', role: '工业视觉方案经理', adopted: 32, title: '先用“缺陷可分性”选择试点线，而不是按产量选', note: '采纳：选线矩阵、光学可行性预检' },
-  { name: 'Mina', initials: 'M', role: '制造数据产品负责人', adopted: 25, title: '样本集必须按发生机制分层，保留时间分布', note: '采纳：数据集划分、漂移监控' },
-  { name: '蒋工', initials: '蒋', role: '连接器工艺工程师', adopted: 20, title: '把换线、换料和设备保养后的波动放进验收', note: '采纳：极端工况清单' },
+  { name: '梁知远', initials: '梁', role: 'GEO 策略负责人', adopted: 31, title: '先固定业务目标和测试基线', note: '采纳：目标定义、基线与验证口径' },
+  { name: '许望', initials: '许', role: '企业 AI 售前负责人', adopted: 24, title: '把判断规则写成可执行的业务条件', note: '采纳：执行步骤、角色与异常处理' },
+  { name: '沈知行', initials: '沈', role: '知识库产品经理', adopted: 19, title: '保留来源证据和版本变更记录', note: '采纳：证据追溯、版本与复盘机制' },
 ];
 
 export default function TaskPage() {
@@ -68,7 +68,7 @@ export default function TaskPage() {
           <h1>{task.title}</h1>
           <p className="detail-lede">{task.brief}</p>
           <div className="tag-row">{task.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}</div>
-          {task.baseVersion && <Link className="base-version" to="/know-how/customer-onboarding"><GitMerge size={16} />基于「{task.baseVersion}」发起迭代<ChevronRight size={15} /></Link>}
+          {task.baseVersion && <Link className="base-version" to={`/know-how/${task.baseKnowHowId || 'b2b-geo-visibility'}`}><GitMerge size={16} />基于「{task.baseVersion}」发起迭代<ChevronRight size={15} /></Link>}
           <div className="owner-row">
             <Avatar text={task.avatar} />
             <div><strong>{task.owner}</strong><span>发起于 2026 年 7 月 12 日</span></div>
@@ -124,11 +124,11 @@ export default function TaskPage() {
             <section className="extraction-result">
               <div className="result-heading">
                 <span><Sparkles size={18} />萃取结果</span>
-                <strong>7 / 11 份贡献被采纳</strong>
+                <strong>{task.resultAdopted || 6} / {task.resultTotal || task.participants} 份贡献被采纳</strong>
               </div>
-              <h2>不同实践者在三个关键判断上形成共识</h2>
-              <p>首个试点不应选择产量最高的线，而应选择缺陷边界清晰、现场光学条件可控、工艺人员愿意持续反馈的线。关于样本量，不采用统一数量门槛，而按缺陷机制和工况覆盖程度验收。</p>
-              <div className="confidence"><BadgeCheck size={18} /><div><strong>中高可信度</strong><span>7 位贡献者的独立实践相互印证；长周期模型漂移仍缺少充分数据。</span></div></div>
+              <h2>不同实践者在关键判断与执行顺序上形成共识</h2>
+              <p>{task.result}</p>
+              <div className="confidence"><BadgeCheck size={18} /><div><strong>中高可信度</strong><span>{task.confidenceNote}</span></div></div>
             </section>
           )}
         </div>
@@ -152,7 +152,7 @@ export default function TaskPage() {
                   <div><strong>{person.name}<span>{person.adopted}%</span></strong><p>{person.note}</p></div>
                 </div>
               ))}</div>
-              <button className="text-button" onClick={() => notify('已展开全部贡献记录')}>查看全部 11 份贡献<ChevronRight size={15} /></button>
+              <button className="text-button" onClick={() => notify('已展开全部贡献记录')}>查看全部 {task.resultTotal || task.participants} 份贡献<ChevronRight size={15} /></button>
             </div>
           ) : (
             <div className="aside-block tip-block">
@@ -161,7 +161,7 @@ export default function TaskPage() {
               <p>对话 Agent 会像一位有准备的采访者，帮你从真实经历中把关键细节说清楚。</p>
             </div>
           )}
-          {task.status === '部分完成' && <div className="aside-block warning-block"><CircleAlert size={18} /><div><strong>仍有信息缺口</strong><p>家校同步与定期演练没有获得足够实践信息。</p></div></div>}
+          {task.status === '部分完成' && <div className="aside-block warning-block"><CircleAlert size={18} /><div><strong>仍有信息缺口</strong><p>{task.gapNote}</p></div></div>}
         </aside>
       </div>
     </div>

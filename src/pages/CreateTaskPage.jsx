@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useDemo } from '../state/DemoContext';
 
 const defaultDraft = {
-  title: '如何把 B2B SaaS 的客户上线周期从 21 天缩短到 7 天？',
-  description: '我们每月新增约 35 家付费客户，从签约到首次产生业务数据平均需要 21 天。主要卡点是数据模板反复补交、客户侧负责人不明确，以及实施顾问并行项目过多。',
-  outcome: '在不增加实施团队人数的前提下，让 80% 的客户在 7 天内完成首次上线。',
-  audience: '30–100 人的 B2B SaaS 公司，客户实施与客户成功团队',
-  constraints: '不能增加正式员工；需要兼顾复杂客户；现有 CRM 和项目管理工具保持不变。',
-  deadline: '2026-07-23',
-  reward: 420,
+  title: '如何建立一套可复测的企业 AI 产品 GEO 可见度诊断方法？',
+  description: '我们正在为多款企业 AI 产品做 GEO 诊断，但不同同学选择的平台、问题和测试时间都不一样，结果无法横向比较，也很难判断优化是否真实有效。',
+  outcome: '形成一套可以按月复测的诊断方法，覆盖问题集、平台抽样、引用来源、推荐位置、情感倾向和异常波动。',
+  audience: '负责企业 AI 产品的品牌、市场、GEO 运营与数据分析团队',
+  constraints: '必须基于真实品牌事实；不使用虚假内容和 AI 投毒；需要保留完整测试证据与版本记录。',
+  deadline: '2026-07-25',
+  reward: 680,
 };
 
 export default function CreateTaskPage() {
@@ -95,10 +95,10 @@ export default function CreateTaskPage() {
   if (path === 'agent' && step === 1) {
     const chat = [
       { who: 'agent', text: '先用一句话告诉我：你现在最想解决的具体问题是什么？' },
-      { who: 'user', text: '我们做 B2B SaaS，客户从签约到真正上线平均要 21 天，我想缩短到一周。' },
-      { who: 'agent', text: '明白。这个目标很具体。为了判断阻力在哪，当前最常拖慢上线的三个环节是什么？' },
-      { who: 'user', text: '客户资料总是反复补交、客户内部负责人不清楚，还有实施顾问手上项目太多。' },
-      { who: 'agent', text: '我找到一份相关的「客户实施交付清单 v2.1」，匹配度 76%。它覆盖了标准动作，但没有解决你提到的跨部门等待和并行项目上限。我建议基于它发布迭代悬赏。' },
+      { who: 'user', text: '我们正在做企业 AI 产品的 GEO，但不同同学测出来的品牌可见度完全不能比较，我想先统一诊断方法。' },
+      { who: 'agent', text: '明白。当前差异主要来自测试平台、用户问题、时间窗口，还是评分标准？' },
+      { who: 'user', text: '都有。有人只看品牌有没有被提到，有人看推荐排名，还有人只测一个模型，也没有保存引用来源和测试版本。' },
+      { who: 'agent', text: '我找到一份相关的「B2B 品牌 GEO 可见度诊断与评分手册 v1.0」，匹配度 82%。它覆盖基础评分，但缺少跨平台抽样、波动排查和业务转化关联。我建议基于这些缺口发布迭代悬赏。' },
     ];
     const visible = chat.slice(0, Math.min(chatIndex + 2, chat.length));
     return (
@@ -112,15 +112,15 @@ export default function CreateTaskPage() {
           <div className="agent-identity"><span className="agent-glyph"><Sparkles size={20} /></span><div><h1>把真实问题说清楚，<br />是得到好答案的一半。</h1><p>我会先理解你的目标，再检查市场里是否已有答案。</p></div></div>
           <div className="chat-list">{visible.map((item, index) => (
             <div className={`chat-bubble ${item.who}`} key={`${item.who}-${index}`}>
-              <span>{item.who === 'agent' ? <Sparkles size={16} /> : '林'}</span><p>{item.text}</p>
+              <span>{item.who === 'agent' ? <Sparkles size={16} /> : '钟'}</span><p>{item.text}</p>
             </div>
           ))}</div>
           {chatIndex < 3 ? (
             <button className="chat-continue" onClick={() => setChatIndex((value) => Math.min(value + 2, 3))}>使用预设回答继续<ArrowRight size={17} /></button>
           ) : (
             <div className="match-panel">
-              <div><span>76%</span><p><strong>找到相关 Know-how</strong>客户实施交付清单 v2.1</p></div>
-              <ul><li><Check size={14} />已覆盖：标准实施节点与角色</li><li><i>!</i>待补充：资料前置、并行上限、风险介入</li></ul>
+              <div><span>82%</span><p><strong>找到相关 Know-how</strong>B2B 品牌 GEO 可见度诊断与评分手册 v1.0</p></div>
+              <ul><li><Check size={14} />已覆盖：基础问题集与四维评分</li><li><i>!</i>待补充：跨平台抽样、波动排查、转化关联</li></ul>
               <button className="primary-button" onClick={generate}>{publishing ? '正在生成任务草稿…' : '基于缺口生成迭代任务'}<ArrowRight size={17} /></button>
             </div>
           )}

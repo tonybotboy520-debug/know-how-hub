@@ -63,7 +63,7 @@ export default function Layout() {
         <div className="sidebar-utility-links">
           <a className="intro-link" href="/product-intro.html" target="_blank" rel="noreferrer">
             <Sparkles size={16} />
-            <span>了解 Know-how Hub</span>
+            <span>了解 360智汇</span>
             <ChevronRight size={15} />
           </a>
           {user && (

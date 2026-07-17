@@ -9,6 +9,7 @@ import WorkspacePage from './pages/WorkspacePage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import PurchasePointsPage from './pages/PurchasePointsPage';
+import WithdrawalPage from './pages/WithdrawalPage';
 import { useDemo } from './state/DemoContext';
 
 function Protected({ children }) {
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="workspace/:section" element={<Protected><WorkspacePage /></Protected>} />
         <Route path="profile" element={<Protected><ProfilePage /></Protected>} />
         <Route path="buy-points" element={<Protected><PurchasePointsPage /></Protected>} />
+        <Route path="withdraw" element={<Protected><WithdrawalPage /></Protected>} />
       </Route>
       <Route path="/login" element={<AuthPage mode="login" />} />
       <Route path="/register" element={<AuthPage mode="register" />} />

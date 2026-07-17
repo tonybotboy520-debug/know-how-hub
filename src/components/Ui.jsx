@@ -1,4 +1,5 @@
-import { ArrowUpRight, Clock3, UsersRound } from 'lucide-react';
+import { ArrowUpRight, Check, ChevronDown, Clock3, UsersRound } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export const statusTone = {
@@ -20,6 +21,103 @@ export function Tag({ children }) {
 
 export function Avatar({ text, size = 'normal' }) {
   return <span className={`avatar avatar-${size}`}>{text}</span>;
+}
+
+export function SelectMenu({
+  value,
+  options,
+  onChange,
+  icon = null,
+  ariaLabel = '选择选项',
+  compact = false,
+}) {
+  const items = [...new Set(options)];
+  const rootRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(Math.max(0, items.indexOf(value)));
+
+  useEffect(() => {
+    const closeFromOutside = (event) => {
+      if (!rootRef.current?.contains(event.target)) setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', closeFromOutside);
+    return () => document.removeEventListener('pointerdown', closeFromOutside);
+  }, []);
+
+  useEffect(() => {
+    setActiveIndex(Math.max(0, items.indexOf(value)));
+  }, [value]);
+
+  const choose = (item) => {
+    onChange(item);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      setOpen(true);
+      setActiveIndex((current) => {
+        const direction = event.key === 'ArrowDown' ? 1 : -1;
+        return (current + direction + items.length) % items.length;
+      });
+      return;
+    }
+
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      setOpen(true);
+      setActiveIndex(event.key === 'Home' ? 0 : items.length - 1);
+      return;
+    }
+
+    if ((event.key === 'Enter' || event.key === ' ') && open) {
+      event.preventDefault();
+      choose(items[activeIndex]);
+    }
+  };
+
+  return (
+    <div ref={rootRef} className={`select-menu ${open ? 'open' : ''} ${compact ? 'compact' : ''}`}>
+      <button
+        type="button"
+        className="select-trigger"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={handleKeyDown}
+      >
+        {icon}
+        <span>{value}</span>
+        <ChevronDown className="select-chevron" size={14} />
+      </button>
+      {open && (
+        <div className="select-options" role="listbox" aria-label={ariaLabel}>
+          {items.map((item, index) => (
+            <button
+              type="button"
+              role="option"
+              aria-selected={item === value}
+              className={`select-option ${item === value ? 'selected' : ''} ${index === activeIndex ? 'active' : ''}`}
+              key={item}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => choose(item)}
+            >
+              <span>{item}</span>
+              {item === value ? <Check size={14} /> : <i />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function TaskCard({ task }) {

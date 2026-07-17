@@ -20,16 +20,16 @@ import { useDemo } from '../state/DemoContext';
 
 const generatedContent = [
   {
-    title: '先改变启动条件，而不是压缩每个执行环节',
-    body: '把“合同已签”与“可以启动实施”分开。只有客户侧负责人、数据模板 Owner、首次数据样本和关键系统权限四项齐备，才进入 7 天上线计时。销售在签约阶段就用一页启动条件表完成确认，缺项会被明确标红。',
+    title: '先固定目标、测试范围和初始基线',
+    body: '开始执行前，先明确这项方法要改善的业务结果、适用对象、数据范围和当前基线。所有后续调整都写入变更记录，避免因为测试口径改变而误判效果。',
   },
   {
-    title: '给并行项目设置可见的 WIP 上限',
-    body: '每位实施顾问同时处于“等待客户之外的执行态”项目不超过 4 个。新项目进入时，如果已达到上限，必须由实施负责人决定推迟启动或重新分配，而不是让顾问私下多线切换。',
+    title: '把经验拆成角色清楚的执行步骤',
+    body: '将实践过程拆成准备、执行、检查和复盘四个阶段，每一步都写清输入材料、负责人、完成标准和最长等待时间。只有规则稳定的高频动作才交给自动化处理。',
   },
   {
-    title: '把风险介入点写成事件，而不是依赖经验',
-    body: '客户负责人 24 小时未确认、模板两次退回、首次数据样本不合格任一事件发生时，客户成功经理自动介入。48 小时仍未解决，再由销售负责人联系客户决策人。',
+    title: '把失败条件、人工介入和复盘写进流程',
+    body: '提前定义结果异常、信息不足和高风险情况的判断条件。触发后暂停自动流程，转给指定角色确认；每周汇总失败样本，判断应修改规则、补充知识还是调整产品。',
   },
 ];
 
@@ -47,12 +47,12 @@ export default function ContributePage() {
   const [submitted, setSubmitted] = useState(submittedTasks.includes(task.id));
 
   const chat = [
-    { who: 'agent', text: '你亲自经历过类似的上线周期压缩吗？先讲一个最接近的项目，原来的周期和结果分别是多少？' },
-    { who: 'user', text: '有。去年我们把中小客户上线从平均 18 天降到 8 天，样本大约 40 家。关键不是让实施更快，而是把启动条件前移。' },
-    { who: 'agent', text: '“启动条件前移”很关键。具体有哪些条件？谁负责确认？条件没齐时会发生什么？' },
-    { who: 'user', text: '客户侧 Owner、数据模板负责人、首次样本、系统权限必须齐。销售在签约时确认，缺一项就不进入实施计时。' },
-    { who: 'agent', text: '你提到实施顾问并行过多。实际设置了怎样的上限？如果新项目进来但已超上限，团队怎么处理？' },
-    { who: 'user', text: '执行态最多 4 个。超过时由主管明确延迟或调配，不能让顾问自己接下来。这个规则实施后返工也明显少了。' },
+    { who: 'agent', text: '你亲自经历过与这个问题相似的项目吗？先说一个最接近的场景，当时的目标和结果分别是什么？' },
+    { who: 'user', text: '有。我们先选了一个范围可控的业务场景，用四周完成首轮验证。真正起作用的是先固定基线，再记录每次调整带来的变化。' },
+    { who: 'agent', text: '“先固定基线”很关键。你们具体记录了哪些信息？由谁确认测试口径没有变化？' },
+    { who: 'user', text: '业务负责人确认目标和样本范围，执行人员记录每次变更，数据同学按固定周期复测。口径变化时不会直接和历史结果比较。' },
+    { who: 'agent', text: '执行过程中出现过哪些失败或异常？团队如何判断应该改规则、补知识，还是转人工处理？' },
+    { who: 'user', text: '我们按原因分类失败样本。事实缺失就补知识，流程不清就改规则，高风险或无法判断的情况直接转给业务负责人确认。' },
   ];
 
   const submit = () => {
@@ -133,10 +133,10 @@ export default function ContributePage() {
             <h1>把已有内容带进来</h1>
             <p>可以先不整理格式。Agent 会在下一步帮你识别结构和信息缺口。</p>
           </div>
-          <label className="large-editor"><textarea defaultValue="去年我们用 40 家中小客户做过一次上线周期改造。最重要的变化不是压缩实施步骤，而是把启动条件前移到签约阶段……" /></label>
+          <label className="large-editor"><textarea defaultValue={`我们曾经处理过“${task.title}”的相似场景。项目开始时先固定了目标、样本范围和判断基线，再按周记录执行变化与失败案例……`} /></label>
           <div className={`upload-zone ${uploadState}`}>
             {uploadState === 'failed' ? (
-              <><span className="upload-error">!</span><div><strong>上传失败</strong><p>customer-onboarding-notes.pdf · 网络连接中断</p></div><button onClick={() => setUploadState('idle')}><RotateCcw size={15} />重试</button></>
+              <><span className="upload-error">!</span><div><strong>上传失败</strong><p>enterprise-ai-practice-notes.pdf · 网络连接中断</p></div><button onClick={() => setUploadState('idle')}><RotateCcw size={15} />重试</button></>
             ) : (
               <><Upload size={22} /><div><strong>{uploadState === 'uploading' ? '正在上传…' : '拖放文档到这里，或点击上传'}</strong><p>支持 PDF、DOCX、TXT，单个文件不超过 20MB</p></div><button onClick={doUpload} disabled={uploadState === 'uploading'}>选择文件</button></>
             )}
@@ -165,7 +165,7 @@ export default function ContributePage() {
           </aside>
           <div className="interview-chat">
             <div className="chat-list">{chat.slice(0, chatIndex + 2).map((item, index) => (
-              <div className={`chat-bubble ${item.who}`} key={`${index}-${item.who}`}><span>{item.who === 'agent' ? <Sparkles size={16} /> : '林'}</span><p>{item.text}</p></div>
+              <div className={`chat-bubble ${item.who}`} key={`${index}-${item.who}`}><span>{item.who === 'agent' ? <Sparkles size={16} /> : '钟'}</span><p>{item.text}</p></div>
             ))}</div>
             {!done ? <button className="chat-continue" onClick={() => setChatIndex((value) => value + 2)}>使用预设回答继续<ArrowRight size={17} /></button> :
               <div className="generate-prompt"><CheckCircle2 size={21} /><div><strong>信息已经基本充分</strong><p>我已经识别出 3 个可复用的实践要点。你可以继续补充，或生成结构化贡献。</p></div><button className="primary-button" onClick={() => setStep(2)}>生成贡献内容</button></div>}
@@ -186,7 +186,7 @@ export default function ContributePage() {
         <main className="contribution-preview">
           <div className="preview-title">
             <span className="page-kicker">STRUCTURED CONTRIBUTION</span>
-            <h1>把启动条件前置，并限制执行中的并行项目</h1>
+            <h1>先建立可验证基线，再把执行与复盘连成闭环</h1>
             <p>Agent 根据你的{mode === 'chat' ? '访谈记录' : '原始内容'}整理 · 你可以直接编辑</p>
           </div>
           {content.map((item, index) => (

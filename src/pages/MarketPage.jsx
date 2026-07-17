@@ -1,8 +1,8 @@
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { knowHows, tasks } from '../data';
-import { EmptyState, KnowHowCard, TaskCard } from '../components/Ui';
+import { EmptyState, KnowHowCard, SelectMenu, TaskCard } from '../components/Ui';
 import { useDemo } from '../state/DemoContext';
 
 export default function MarketPage() {
@@ -51,8 +51,8 @@ export default function MarketPage() {
       <section className="market-hero">
         <div className="hero-layout">
           <div className="hero-copy">
-            <h1>让每一次实践，都成为人类共同的 <em>Know-how</em></h1>
-            <p>连接真实问题与实践经验，让答案在贡献中持续进化。</p>
+            <h1>汇聚全球 <em>Know-how</em>，构建 AI 的专业大脑。</h1>
+            <p>连接真实问题与全球实践者，通过 AI 访谈、萃取和验证，把分散在人脑与真实工作中的经验，转化为可复用、可迭代、可调用的专业能力。</p>
             <div className="market-search">
               <Search size={20} />
               <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索一个问题、领域或实践方法…" />
@@ -61,7 +61,7 @@ export default function MarketPage() {
             </div>
             <div className="trending">
               <span>正在讨论</span>
-              {['AI 质检', '门店排班', '客户成功', '居住改造'].map((item) => (
+              {['GEO 诊断', 'AI 知识库', '销售工具', 'AI 客服'].map((item) => (
                 <button key={item} onClick={() => setQuery(item)}>#{item}</button>
               ))}
             </div>
@@ -81,8 +81,19 @@ export default function MarketPage() {
           </div>
           {tab === 'tasks' && (
             <div className="filters">
-              <label><SlidersHorizontal size={16} /><select value={status} onChange={(event) => setStatus(event.target.value)}><option>全部状态</option><option>征集中</option><option>萃取中</option><option>已完成</option><option>部分完成</option><option>未完成</option></select><ChevronDown size={14} /></label>
-              <label><select value={sort} onChange={(event) => setSort(event.target.value)}><option>最近更新</option><option>悬赏积分</option></select><ChevronDown size={14} /></label>
+              <SelectMenu
+                ariaLabel="筛选任务状态"
+                value={status}
+                options={['全部状态', '征集中', '萃取中', '已完成', '部分完成', '未完成']}
+                onChange={setStatus}
+                icon={<SlidersHorizontal size={16} />}
+              />
+              <SelectMenu
+                ariaLabel="任务排序方式"
+                value={sort}
+                options={['最近更新', '悬赏积分']}
+                onChange={setSort}
+              />
             </div>
           )}
         </div>

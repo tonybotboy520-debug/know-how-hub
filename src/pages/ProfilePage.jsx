@@ -6,7 +6,7 @@ import { useDemo } from '../state/DemoContext';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, setUser, points, notify } = useDemo();
+  const { user, setUser, points, withdrawablePoints, notify } = useDemo();
 
   const logout = () => {
     setUser(null);
@@ -34,16 +34,17 @@ export default function ProfilePage() {
         <div className="points-card">
           <span><Coins size={18} />可用积分</span>
           <strong>{points.toLocaleString()}</strong>
-          <p>另有 280 积分冻结在 1 项悬赏中</p>
+          <p>其中 {withdrawablePoints.toLocaleString()} 积分来自贡献收益</p>
           <div className="points-card-actions">
             <button onClick={() => navigate('/buy-points')}>购买积分</button>
+            <button className="withdraw-action" onClick={() => navigate('/withdraw')}>收益提现</button>
             <button onClick={() => navigate('/workspace/tasks')}>查看积分记录</button>
           </div>
         </div>
         <div className="reputation-card">
           <div className="rep-heading"><span><Award size={18} />领域贡献</span><small>按领域分别记录</small></div>
-          <div className="rep-row"><div><strong>客户成功</strong><span>持续贡献 14 个月</span></div><div className="rep-bar"><i style={{ width: '86%' }} /></div><b>领先 14%</b></div>
-          <div className="rep-row"><div><strong>服务设计</strong><span>贡献 6 个版本</span></div><div className="rep-bar"><i style={{ width: '68%' }} /></div><b>稳定</b></div>
+          <div className="rep-row"><div><strong>GEO 策略</strong><span>持续贡献 14 个月</span></div><div className="rep-bar"><i style={{ width: '86%' }} /></div><b>领先 14%</b></div>
+          <div className="rep-row"><div><strong>销售运营</strong><span>贡献 6 个版本</span></div><div className="rep-bar"><i style={{ width: '68%' }} /></div><b>稳定</b></div>
         </div>
         <div className="profile-metrics">
           <div><TrendingUp size={18} /><strong>12</strong><span>被采纳次数</span></div>
@@ -58,7 +59,7 @@ export default function ProfilePage() {
       </section>
       <section className="profile-section">
         <div className="profile-section-head"><div><span className="page-kicker">CONTRIBUTION HISTORY</span><h2>最近参与</h2></div><button onClick={() => navigate('/workspace/tasks')}>查看履历</button></div>
-        <div className="task-grid compact-grid">{tasks.filter((task) => ['factory-vision', 'saas-onboarding'].includes(task.id)).map((task) => <TaskCard task={task} key={task.id} />)}</div>
+        <div className="task-grid compact-grid">{tasks.filter((task) => ['geo-competitor-gap', 'ai-presales-proposal'].includes(task.id)).map((task) => <TaskCard task={task} key={task.id} />)}</div>
       </section>
     </div>
   );

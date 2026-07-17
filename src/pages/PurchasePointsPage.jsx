@@ -221,7 +221,7 @@ export default function PurchasePointsPage() {
               <article><span><Coins size={19} /></span><div><strong>购买已有 Know-how</strong><p>按积分价格获得 AI Skill 远程调用权，直接接入自己的 AI 工作流。</p></div></article>
               <article><span><Gift size={19} /></span><div><strong>迭代已有版本</strong><p>围绕信息缺口、适用边界或新场景发起定向补充，让知识持续生长。</p></div></article>
             </div>
-            <div className="purchase-note"><ShieldCheck size={18} /><p><strong>人民币只用于购买积分。</strong>平台内的悬赏、购买和贡献分配均以积分结算，积分暂不支持提现。</p></div>
+            <div className="purchase-note"><ShieldCheck size={18} /><p><strong>购买所得积分不可提现。</strong>平台内交易均以积分结算；贡献分成和调用版税所得积分可按规则提现。</p></div>
           </div>
 
           <aside className="order-card">
