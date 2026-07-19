@@ -21,12 +21,33 @@ const notificationLabels = {
   knowhow: 'Know-how',
 };
 
+const formatPointsChange = (value) => `${value > 0 ? '+' : '−'}${Math.abs(value).toLocaleString()}`;
+
+function PointsChange({ value, className = '' }) {
+  return <span className={`points-highlight ${value < 0 ? 'negative' : 'positive'} ${className}`}>{formatPointsChange(value)}<small>积分</small></span>;
+}
+
+function HighlightPoints({ text, value }) {
+  if (typeof value !== 'number') return text;
+  const amount = `${Math.abs(value).toLocaleString()} 积分`;
+  const parts = text.split(amount);
+  if (parts.length === 1) return text;
+
+  return parts.map((part, index) => (
+    <span key={`${part}-${index}`}>
+      {part}
+      {index < parts.length - 1 && <PointsChange value={value} />}
+    </span>
+  ));
+}
+
 export default function NotificationDetailPage() {
   const { notificationId } = useParams();
   const navigate = useNavigate();
   const item = notifications.find((entry) => String(entry.id) === notificationId) || notifications[0];
   const messageType = item.messageType || 'system';
   const Icon = notificationIcons[messageType] || Bell;
+  const hasPointsChange = typeof item.pointsChange === 'number';
 
   return (
     <div className="page notification-detail-page">
@@ -43,7 +64,7 @@ export default function NotificationDetailPage() {
             <span className={`notification-type-label ${messageType}`}>{notificationLabels[messageType]}</span>
             <h1>{item.title}</h1>
           </div>
-          <p>{item.detail}</p>
+          <p><HighlightPoints text={item.detail} value={item.pointsChange} /></p>
           <time>{item.timestamp}</time>
         </div>
       </header>
@@ -51,11 +72,19 @@ export default function NotificationDetailPage() {
       <main className="notification-detail-layout">
         <article className="notification-detail-copy">
           <span className="page-kicker">消息详情</span>
-          {item.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {item.body.map((paragraph) => <p key={paragraph}><HighlightPoints text={paragraph} value={item.pointsChange} /></p>)}
           <div className="notification-facts">
-            {item.facts.map(([label, value]) => (
-              <div key={label}><span>{label}</span><strong>{value}</strong></div>
-            ))}
+            {item.facts.map(([label, value]) => {
+              const isPointsFact = hasPointsChange
+                && /收益|版税|到账积分/.test(label)
+                && value.includes(`${Math.abs(item.pointsChange).toLocaleString()} 积分`);
+              return (
+                <div key={label}>
+                  <span>{label}</span>
+                  {isPointsFact ? <PointsChange value={item.pointsChange} className="notification-points-fact" /> : <strong>{value}</strong>}
+                </div>
+              );
+            })}
           </div>
         </article>
 

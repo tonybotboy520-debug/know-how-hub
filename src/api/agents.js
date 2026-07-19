@@ -29,6 +29,15 @@ export async function suggestAgentAnswer(agentId, messages, context = {}, draft 
   return payload.suggestion?.content || '';
 }
 
+export async function analyzeAgentConversation(agentId, messages, context = {}, progress = 35) {
+  const payload = await requestAgent(`/api/agents/${agentId}/status`, {
+    messages,
+    context,
+    progress,
+  });
+  return payload.status;
+}
+
 export async function generateAgentArtifact(agentId, messages, context = {}) {
   const payload = await requestAgent(`/api/agents/${agentId}/generate`, { messages, context });
   return payload.artifact;

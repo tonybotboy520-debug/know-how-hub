@@ -20,6 +20,7 @@ const (
 	ConversationMode PromptMode = "conversation"
 	GenerationMode   PromptMode = "generation"
 	SuggestionMode   PromptMode = "suggestion"
+	StatusMode       PromptMode = "status"
 )
 
 const sharedRules = `
@@ -95,11 +96,26 @@ func (c Config) Prompt(mode PromptMode) (string, error) {
 	case GenerationMode:
 		stageInstruction = "当前处于生成模式。执行技能中的生成模式，并严格遵守其中的 JSON 结构；不要继续追问。"
 	case SuggestionMode:
-		stageInstruction = `当前处于用户回答辅助模式。根据对话中最后一个 Agent 问题，为用户生成一段可编辑的第一人称回答草稿。
+		stageInstruction = `当前处于用户回答辅助模式。只回答后端明确提供的 <latest_agent_question>，为用户生成一段可编辑的第一人称回答草稿。
+更早轮次的问题和回答只能用于理解背景，不得把更早的问题当作本次回答目标，也不得同时回答多个问题。
 只使用业务上下文、历史对话和用户未发送草稿中已经存在的事实，不得虚构用户的经历、数据、结果或立场。
 缺少必要事实时，使用“【请补充：具体信息】”形式保留明确占位，不要替用户猜测。
 你不是在创作示例案例。历史中没有用户事实时，所有具体信息都必须使用“【请补充】”占位，严禁自行提供行业、项目、数字或结果。
 只输出回答草稿正文，不要继续追问，不要解释，不要加引号或 Markdown，控制在 180 字以内。`
+	case StatusMode:
+		stageInstruction = `当前处于对话状态评估模式。依据本技能的工作流、完成标准、业务上下文和用户已经提供的事实，判断当前信息覆盖度与可提交状态。
+不要继续与用户对话，不要生成任务或 Know-how 草稿，不要因为表达流畅就高估完成度。
+“已覆盖”只写对话中已经明确的信息；“待补充”只写会影响成果可执行性、边界或验证的关键缺口。
+只输出合法 JSON，不要代码块、解释或额外文本：
+{
+  "readiness": 0到95之间的数字,
+  "stage": "当前阶段，不超过16字",
+  "summary": "当前状态说明，不超过60字",
+  "covered": ["已明确的要点，1至3项"],
+  "gaps": ["仍需补充的关键问题，1至3项"],
+  "submitReady": false,
+  "nextAction": "下一步建议，不超过40字"
+}`
 	default:
 		return "", fmt.Errorf("unsupported prompt mode %q", mode)
 	}

@@ -43,6 +43,7 @@ API Key 只能保存在后端环境变量或密钥管理系统中，不能写入
 - `GET /api/agents`：四个 Agent 的公开信息；
 - `POST /api/agents/:agentId/chat`：Agent 多轮对话；
 - `POST /api/agents/:agentId/suggest`：为用户生成可编辑但不会自动发送的回答草稿；
+- `POST /api/agents/:agentId/status`：动态分析对话覆盖度、关键缺口和可提交状态；
 - `POST /api/agents/:agentId/generate`：生成结构化草稿。
 
 ## 验证

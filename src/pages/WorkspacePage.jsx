@@ -107,7 +107,11 @@ export default function WorkspacePage() {
                 <p>{item.detail}</p>
                 <span>{item.time}</span>
               </div>
-              <ArrowRight size={17} />
+              {typeof item.pointsChange === 'number' ? (
+                <span className={`notification-points-change ${item.pointsChange < 0 ? 'negative' : 'positive'}`}>
+                  {item.pointsChange > 0 ? '+' : '−'}{Math.abs(item.pointsChange).toLocaleString()}<small>积分</small>
+                </span>
+              ) : <ArrowRight size={17} />}
             </Link>
           );
         })}</div>

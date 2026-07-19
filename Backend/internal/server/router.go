@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strings"
 	"sync"
@@ -42,6 +43,17 @@ type agentRequest struct {
 	Messages []zhinao.Message `json:"messages"`
 	Context  map[string]any   `json:"context"`
 	Draft    string           `json:"draft"`
+	Progress float64          `json:"progress"`
+}
+
+type conversationStatusArtifact struct {
+	Readiness   float64  `json:"readiness"`
+	Stage       string   `json:"stage"`
+	Summary     string   `json:"summary"`
+	Covered     []string `json:"covered"`
+	Gaps        []string `json:"gaps"`
+	SubmitReady bool     `json:"submitReady"`
+	NextAction  string   `json:"nextAction"`
 }
 
 func NewRouter(config Config, client Client) *gin.Engine {
@@ -59,6 +71,7 @@ func NewRouter(config Config, client Client) *gin.Engine {
 	agentRoutes.Use(newRateLimiter(30, time.Minute).middleware())
 	agentRoutes.POST("/:agentId/chat", h.chat)
 	agentRoutes.POST("/:agentId/suggest", h.suggest)
+	agentRoutes.POST("/:agentId/status", h.status)
 	agentRoutes.POST("/:agentId/generate", h.generate)
 
 	router.NoRoute(func(c *gin.Context) {
@@ -158,36 +171,38 @@ func (h *handler) suggest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "当前还没有可以回答的问题。"})
 		return
 	}
+	latestQuestion, latestQuestionIndex, ok := latestAssistantQuestion(messages)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "当前还没有 Agent 提出的问题。"})
+		return
+	}
 	contextJSON, ok := marshalContext(c, request.Context)
 	if !ok {
 		return
 	}
 
-	completionMessages := make([]zhinao.Message, 0, len(messages)+2)
+	relevantMessages := messages[:latestQuestionIndex+1]
+	completionMessages := make([]zhinao.Message, 0, len(relevantMessages)+2)
 	completionMessages = append(completionMessages, zhinao.Message{
 		Role:    "system",
-		Content: prompt + "\n\n当前业务上下文：\n" + contextJSON,
+		Content: prompt + "\n\n当前业务上下文：\n" + contextJSON + "\n\n<latest_agent_question>\n" + latestQuestion + "\n</latest_agent_question>",
 	})
-	completionMessages = append(completionMessages, messages...)
+	completionMessages = append(completionMessages, relevantMessages...)
 	hasUserFacts := false
-	for _, message := range messages {
+	for _, message := range relevantMessages {
 		if message.Role == "user" && strings.TrimSpace(message.Content) != "" {
 			hasUserFacts = true
 			break
 		}
 	}
+	answerInstruction := "只为下面这一个最近一轮 Agent 问题生成回答草稿，不要回答历史中的其他问题：\n\n" + latestQuestion
 	if draft := truncateRunes(strings.TrimSpace(request.Draft), maxMessageRunes); draft != "" {
 		hasUserFacts = true
-		completionMessages = append(completionMessages, zhinao.Message{
-			Role:    "user",
-			Content: "这是我已经写下但尚未发送的草稿。请保留其中已有事实，帮我补充和整理：\n" + draft,
-		})
+		answerInstruction += "\n\n这是我针对该问题已经写下但尚未发送的草稿。请保留其中已有事实，帮我补充和整理：\n" + draft
 	} else if !hasUserFacts {
-		completionMessages = append(completionMessages, zhinao.Message{
-			Role:    "user",
-			Content: "请为上一个 Agent 问题生成可编辑回答。当前没有任何用户事实，严禁提供具体案例、行业、数字或结果；所有事实都必须使用【请补充：具体信息】占位。",
-		})
+		answerInstruction += "\n\n当前没有任何用户事实，严禁提供具体案例、行业、数字或结果；所有事实都必须使用【请补充：具体信息】占位。"
 	}
+	completionMessages = append(completionMessages, zhinao.Message{Role: "user", Content: answerInstruction})
 
 	completion, err := h.client.Complete(c.Request.Context(), zhinao.CompletionRequest{
 		Messages:    completionMessages,
@@ -200,11 +215,12 @@ func (h *handler) suggest(c *gin.Context) {
 	}
 	suggestion := truncateRunes(strings.TrimSpace(completion.Content), 180)
 	if !hasUserFacts && !strings.Contains(suggestion, "【请补充") {
-		suggestion = emptyFactSuggestion(agent.ID)
+		suggestion = emptyFactSuggestion(latestQuestion)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"agent":      gin.H{"id": agent.ID, "name": agent.Name, "skill": agent.SkillName},
+		"basedOn":    gin.H{"role": "assistant", "content": latestQuestion},
 		"suggestion": gin.H{"content": suggestion},
 		"model":      completion.Model,
 		"usage":      completion.Usage,
@@ -212,17 +228,158 @@ func (h *handler) suggest(c *gin.Context) {
 	})
 }
 
-func emptyFactSuggestion(agentID string) string {
-	switch agentID {
-	case "task":
-		return "我现在最想解决的是【请补充：具体问题】。它发生在【请补充：业务场景】，目前造成【请补充：实际影响】，我希望最终得到【请补充：可验证结果】。"
-	case "contribution":
-		return "与这个任务最接近的真实项目是【请补充：项目】。当时目标是【请补充：目标】，我负责【请补充：本人角色和动作】，最终结果是【请补充：可验证结果】。"
-	case "iteration":
-		return "我希望调整【请补充：具体部分】。在【请补充：真实使用场景】中，当前版本出现【请补充：实际问题】，我希望新版本补充【请补充：变化和验证方式】。"
-	default:
-		return "我想沉淀的是【请补充：实践主题】，它主要解决【请补充：具体问题】。一个我亲自经历的代表性案例是【请补充：项目背景、本人角色和可验证结果】。"
+func latestAssistantQuestion(messages []zhinao.Message) (string, int, bool) {
+	for index := len(messages) - 1; index >= 0; index-- {
+		if messages[index].Role == "assistant" && strings.TrimSpace(messages[index].Content) != "" {
+			return strings.TrimSpace(messages[index].Content), index, true
+		}
 	}
+	return "", -1, false
+}
+
+func emptyFactSuggestion(latestQuestion string) string {
+	question := truncateRunes(strings.TrimSpace(latestQuestion), 60)
+	return "针对“" + question + "”，我的回答是【请补充：与这个问题直接相关的真实经历、做法或结果】。"
+}
+
+func (h *handler) status(c *gin.Context) {
+	agent, ok := h.getAgent(c)
+	if !ok {
+		return
+	}
+	prompt, err := agent.Prompt(agents.StatusMode)
+	if err != nil {
+		respondError(c, &zhinao.ServiceError{
+			Message: "Agent 技能加载失败，请稍后重试。",
+			Status:  http.StatusInternalServerError,
+			Detail:  err.Error(),
+		})
+		return
+	}
+
+	request, ok := bindAgentRequest(c)
+	if !ok {
+		return
+	}
+	messages := sanitizeMessages(request.Messages)
+	userTurns := 0
+	for _, message := range messages {
+		if message.Role == "user" {
+			userTurns++
+		}
+	}
+	if userTurns == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "至少完成一轮回答后才能分析对话状态。"})
+		return
+	}
+	contextJSON, ok := marshalContext(c, request.Context)
+	if !ok {
+		return
+	}
+
+	completionMessages := make([]zhinao.Message, 0, len(messages)+2)
+	completionMessages = append(completionMessages, zhinao.Message{
+		Role:    "system",
+		Content: prompt + "\n\n当前业务上下文：\n" + contextJSON,
+	})
+	completionMessages = append(completionMessages, messages...)
+	completionMessages = append(completionMessages, zhinao.Message{
+		Role:    "user",
+		Content: "请评估以上对话截至当前一轮的覆盖情况。只输出状态评估 JSON。",
+	})
+
+	completion, err := h.client.Complete(c.Request.Context(), zhinao.CompletionRequest{
+		Messages:    completionMessages,
+		Temperature: 0.1,
+		MaxTokens:   900,
+	})
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	artifact, err := zhinao.ParseJSONArtifact(completion.Content)
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	artifactJSON, err := json.Marshal(artifact)
+	if err != nil {
+		respondError(c, &zhinao.ServiceError{Message: "Agent 状态结果无法解析，请重试。", Status: http.StatusBadGateway, Detail: err.Error()})
+		return
+	}
+	var status conversationStatusArtifact
+	if err := json.Unmarshal(artifactJSON, &status); err != nil {
+		respondError(c, &zhinao.ServiceError{Message: "Agent 状态结果格式不完整，请重试。", Status: http.StatusBadGateway, Detail: err.Error()})
+		return
+	}
+
+	progress := calculateConversationProgress(request.Progress, userTurns, status.Readiness)
+	covered := sanitizeStatusItems(status.Covered)
+	gaps := sanitizeStatusItems(status.Gaps)
+	submitReady := status.SubmitReady && progress >= 78
+	if len(gaps) == 0 && !submitReady {
+		gaps = []string{"继续补充当前问题中的关键实践细节"}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"agent": gin.H{"id": agent.ID, "name": agent.Name, "skill": agent.SkillName},
+		"status": gin.H{
+			"progress":    progress,
+			"turn":        userTurns,
+			"stage":       fallbackText(status.Stage, "正在梳理"),
+			"summary":     fallbackText(status.Summary, "Agent 正在根据对话判断覆盖情况。"),
+			"covered":     covered,
+			"gaps":        gaps,
+			"submitReady": submitReady,
+			"nextAction":  fallbackText(status.NextAction, "继续回答 Agent 当前问题"),
+		},
+		"model":     completion.Model,
+		"usage":     completion.Usage,
+		"requestId": nullableString(completion.RequestID),
+	})
+}
+
+func calculateConversationProgress(previous float64, userTurns int, readiness float64) int {
+	previousProgress := int(math.Round(math.Max(0, math.Min(98, previous))))
+	if previousProgress == 0 {
+		previousProgress = 35
+	}
+	if userTurns <= 0 || previousProgress >= 98 {
+		return previousProgress
+	}
+
+	readiness = math.Max(0, math.Min(95, readiness))
+	curve := 35 + 63*(1-math.Exp(-0.55*float64(userTurns)))
+	target := int(math.Round(curve + (readiness-60)*0.12))
+	remaining := 98 - previousProgress
+	growthRate := 0.55 / (1 + 0.22*float64(userTurns-1))
+	maxIncrease := int(math.Max(1, math.Round(float64(remaining)*growthRate)))
+	next := max(previousProgress+1, target)
+	next = min(next, previousProgress+maxIncrease)
+	return min(98, next)
+}
+
+func sanitizeStatusItems(items []string) []string {
+	result := make([]string, 0, min(3, len(items)))
+	for _, item := range items {
+		item = truncateRunes(strings.TrimSpace(item), 48)
+		if item == "" {
+			continue
+		}
+		result = append(result, item)
+		if len(result) == 3 {
+			break
+		}
+	}
+	return result
+}
+
+func fallbackText(value, fallback string) string {
+	value = truncateRunes(strings.TrimSpace(value), 80)
+	if value == "" {
+		return fallback
+	}
+	return value
 }
 
 func (h *handler) generate(c *gin.Context) {

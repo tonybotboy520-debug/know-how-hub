@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, Check, ChevronRight, FilePenLine, MessageSquareM
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generateAgentArtifact } from '../api/agents';
-import { AgentComposer } from '../components/Ui';
+import { AgentComposer, AgentStatusPanel } from '../components/Ui';
 import { useAgentChat } from '../hooks/useAgentChat';
 import { useDemo } from '../state/DemoContext';
 
@@ -47,17 +47,20 @@ export default function CreateTaskPage() {
     suggesting,
     error: agentError,
     setError: setAgentError,
+    conversationStatus,
+    statusLoading,
+    statusError,
     sendMessage,
     suggestAnswer,
   } = useAgentChat({
     agentId: 'task',
     context: taskAgentContext,
     greeting: '先用一句话告诉我：你现在最想解决的具体问题是什么？',
+    storageKey: 'kh-agent-task',
   });
 
   const update = (field, value) => setDraft((item) => ({ ...item, [field]: value }));
   const insufficient = Number(draft.reward) > points;
-  const userAnswerCount = messages.filter((message) => message.role === 'user').length;
 
   const submitChat = async (value) => {
     const sent = await sendMessage(value);
@@ -184,13 +187,20 @@ export default function CreateTaskPage() {
             error={agentError || draftError}
             placeholder="描述你的真实问题、背景或限制…"
           />
-          {userAnswerCount >= 2 && (
-            <div className="match-panel">
-              <div><span>82%</span><p><strong>找到相关 Know-how</strong>B2B 品牌 GEO 可见度诊断与评分手册 v1.0</p></div>
-              <ul><li><Check size={14} />已覆盖：基础问题集与四维评分</li><li><i>!</i>待补充：跨平台抽样、波动排查、转化关联</li></ul>
-              <button className="primary-button" disabled={publishing || agentLoading} onClick={generate}>{publishing ? '正在生成任务草稿…' : '基于对话生成任务草稿'}<ArrowRight size={17} /></button>
-            </div>
-          )}
+          <AgentStatusPanel
+            status={conversationStatus}
+            loading={statusLoading}
+            error={statusError}
+            action={(
+              <button
+                className="primary-button"
+                disabled={!conversationStatus.submitReady || publishing || agentLoading}
+                onClick={generate}
+              >
+                {publishing ? '正在生成任务草稿…' : '基于对话生成任务草稿'}<ArrowRight size={17} />
+              </button>
+            )}
+          />
         </div>
       </div>
     );

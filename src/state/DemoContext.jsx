@@ -10,6 +10,7 @@ const initialWithdrawals = [
 const initialFollowedTasks = ['geo-visibility-baseline', 'vibe-sales-crm'];
 const initialFollowedKnowHows = ['b2b-geo-visibility', 'enterprise-knowledge-governance'];
 const initialSubmittedTasks = ['ai-presales-proposal'];
+const initialContributionParticipantIncrements = {};
 
 const read = (key, fallback) => {
   try {
@@ -37,6 +38,7 @@ export function DemoProvider({ children }) {
   const [createdTasks, setCreatedTasks] = useState(() => read('kh-created-tasks', []));
   const [createdKnowHows, setCreatedKnowHows] = useState(() => read('kh-created-knowhows', []));
   const [submittedTasks, setSubmittedTasks] = useState(() => read('kh-submitted-tasks-v2', initialSubmittedTasks));
+  const [contributionParticipantIncrements, setContributionParticipantIncrements] = useState(() => read('kh-task-participant-increments', initialContributionParticipantIncrements));
   const [toast, setToast] = useState('');
 
   useEffect(() => localStorage.setItem('kh-user', JSON.stringify(user)), [user]);
@@ -48,6 +50,7 @@ export function DemoProvider({ children }) {
   useEffect(() => localStorage.setItem('kh-created-tasks', JSON.stringify(createdTasks)), [createdTasks]);
   useEffect(() => localStorage.setItem('kh-created-knowhows', JSON.stringify(createdKnowHows)), [createdKnowHows]);
   useEffect(() => localStorage.setItem('kh-submitted-tasks-v2', JSON.stringify(submittedTasks)), [submittedTasks]);
+  useEffect(() => localStorage.setItem('kh-task-participant-increments', JSON.stringify(contributionParticipantIncrements)), [contributionParticipantIncrements]);
 
   const notify = (message) => {
     setToast(message);
@@ -68,6 +71,16 @@ export function DemoProvider({ children }) {
     return true;
   };
 
+  const recordTaskContribution = (id) => {
+    if (submittedTasks.includes(id)) return false;
+    setSubmittedTasks((items) => [...items, id]);
+    setContributionParticipantIncrements((items) => ({
+      ...items,
+      [id]: (Number(items[id]) || 0) + 1,
+    }));
+    return true;
+  };
+
   const resetDemoData = () => {
     Object.keys(localStorage)
       .filter((key) => key.startsWith('kh-'))
@@ -81,6 +94,7 @@ export function DemoProvider({ children }) {
     setCreatedTasks([]);
     setCreatedKnowHows([]);
     setSubmittedTasks(initialSubmittedTasks);
+    setContributionParticipantIncrements(initialContributionParticipantIncrements);
     notify('本地演示数据已清除，已恢复初始状态');
   };
 
@@ -102,13 +116,15 @@ export function DemoProvider({ children }) {
       setCreatedKnowHows,
       submittedTasks,
       setSubmittedTasks,
+      contributionParticipantIncrements,
+      recordTaskContribution,
       toggleTaskFollow,
       toggleKnowHowFollow,
       resetDemoData,
       toast,
       notify,
     }),
-    [user, points, withdrawablePoints, withdrawals, followedTasks, followedKnowHows, createdTasks, createdKnowHows, submittedTasks, toast],
+    [user, points, withdrawablePoints, withdrawals, followedTasks, followedKnowHows, createdTasks, createdKnowHows, submittedTasks, contributionParticipantIncrements, toast],
   );
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;

@@ -29,7 +29,7 @@ const contributions = [
 export default function TaskPage() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { user, followedTasks, toggleTaskFollow, notify, createdTasks, submittedTasks } = useDemo();
+  const { user, followedTasks, toggleTaskFollow, notify, createdTasks, submittedTasks, contributionParticipantIncrements } = useDemo();
   const savedTask = createdTasks.find((item) => item.id === taskId);
   const task = tasks.find((item) => item.id === taskId) || (savedTask && {
     ...savedTask,
@@ -45,6 +45,8 @@ export default function TaskPage() {
   }) || tasks[0];
   const isFollowed = followedTasks.includes(task.id);
   const hasContributed = Boolean(user && submittedTasks.includes(task.id));
+  const participantCount = Math.max(0, Number(task.participants) || 0)
+    + Math.max(0, Number(contributionParticipantIncrements[task.id]) || 0);
   const completed = ['已完成', '部分完成'].includes(task.status);
 
   const guard = (action) => {
@@ -55,7 +57,7 @@ export default function TaskPage() {
   return (
     <div className="page detail-page">
       <div className="detail-nav">
-        <button className="back-button" onClick={() => navigate(-1)}><ArrowLeft size={17} />返回任务市场</button>
+        <button className="back-button" onClick={() => navigate('/')}><ArrowLeft size={17} />返回任务市场</button>
         <div>
           <button className="icon-button" onClick={() => notify('分享链接已复制')}><Share2 size={17} /></button>
           <button className={`outline-button ${isFollowed ? 'selected' : ''}`} onClick={() => guard(() => toggleTaskFollow(task.id))}>
@@ -83,7 +85,7 @@ export default function TaskPage() {
         <aside className="task-action-card">
           <div className="reward-large"><span>悬赏积分</span><strong>{task.reward}</strong><small>PTS</small></div>
           <div className="deadline"><Clock3 size={18} /><div><span>贡献截止</span><strong>{task.deadline}</strong></div></div>
-          <div className="participation"><UsersRound size={18} /><div><span>当前已有</span><strong>{task.participants} 位实践者贡献</strong></div></div>
+          <div className="participation"><UsersRound size={18} /><div><span>当前已有</span><strong>{participantCount} 位实践者贡献</strong></div></div>
           {hasContributed ? (
             <>
               <button
@@ -154,7 +156,7 @@ export default function TaskPage() {
             <h3>任务进度</h3>
             <div className="progress-track">
               <div className="progress-item done"><i><Check size={12} /></i><div><strong>任务已发布</strong><span>7 月 12 日 09:30</span></div></div>
-              <div className={`progress-item ${task.status !== '征集中' ? 'done' : 'current'}`}><i>{task.status === '征集中' ? task.participants : <Check size={12} />}</i><div><strong>{task.participants} 份有效贡献</strong><span>{task.status === '征集中' ? '继续征集中' : '提交已锁定并公开'}</span></div></div>
+              <div className={`progress-item ${task.status !== '征集中' ? 'done' : 'current'}`}><i>{task.status === '征集中' ? participantCount : <Check size={12} />}</i><div><strong>{participantCount} 份有效贡献</strong><span>{task.status === '征集中' ? '继续征集中' : '提交已锁定并公开'}</span></div></div>
               <div className={`progress-item ${completed ? 'done' : task.status === '萃取中' ? 'current' : ''}`}><i>{completed ? <Check size={12} /> : <Sparkles size={12} />}</i><div><strong>萃取与评估</strong><span>{completed ? '冲突与来源已标注' : '等待截止后自动启动'}</span></div></div>
               <div className={`progress-item ${completed ? 'done' : ''}`}><i>{completed ? <Check size={12} /> : '4'}</i><div><strong>交付与积分分配</strong><span>{completed ? '已自动完成' : '尚未开始'}</span></div></div>
             </div>

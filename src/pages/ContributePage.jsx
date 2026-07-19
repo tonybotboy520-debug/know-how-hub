@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  CheckCircle2,
   ChevronRight,
   FileText,
   LockKeyhole,
@@ -16,7 +15,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { generateAgentArtifact } from '../api/agents';
-import { AgentComposer } from '../components/Ui';
+import { AgentComposer, AgentStatusPanel } from '../components/Ui';
 import { tasks } from '../data';
 import { useAgentChat } from '../hooks/useAgentChat';
 import { useDemo } from '../state/DemoContext';
@@ -40,7 +39,7 @@ export default function ContributePage() {
   const { taskId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { submittedTasks, setSubmittedTasks, createdTasks, notify } = useDemo();
+  const { submittedTasks, createdTasks, notify, recordTaskContribution } = useDemo();
   const task = tasks.find((item) => item.id === taskId)
     || createdTasks.find((item) => item.id === taskId)
     || tasks[0];
@@ -84,6 +83,9 @@ export default function ContributePage() {
     suggesting,
     error: agentError,
     setError: setAgentError,
+    conversationStatus,
+    statusLoading,
+    statusError,
     sendMessage,
     suggestAnswer,
   } = useAgentChat({
@@ -94,8 +96,6 @@ export default function ContributePage() {
     storageKey: `kh-agent-contribution-${task.id}`,
   });
   const userAnswerCount = messages.filter((message) => message.role === 'user').length;
-  const done = userAnswerCount >= 2;
-  const progress = Math.min(85, 25 + userAnswerCount * 20);
   const completedManualPoints = manualPoints.filter((item) => item.question.trim() || item.answer.trim());
   const submittedPointCount = content.length + completedManualPoints.length;
   const submittedCharacterCount = [
@@ -161,7 +161,7 @@ export default function ContributePage() {
   const submit = () => {
     setSubmitting(true);
     window.setTimeout(() => {
-      if (!submittedTasks.includes(task.id)) setSubmittedTasks([...submittedTasks, task.id]);
+      recordTaskContribution(task.id);
       setSubmitting(false);
       setSubmitted(true);
       notify('贡献已密封提交，截止前可继续修改');
@@ -289,7 +289,7 @@ export default function ContributePage() {
             <ArrowLeft size={17} />{returnToPreview ? '返回贡献预览' : '保存并退出'}
           </button>
           <div><span>对话 Agent</span><i />访谈进行中 · 约 8 分钟</div>
-          <span>进度 {progress}%</span>
+          <span>进度 {conversationStatus.progress}%</span>
         </header>
         <div className="interview-layout">
           <aside className="interview-outline">
@@ -314,8 +314,20 @@ export default function ContributePage() {
               error={agentError}
               placeholder="补充真实经历、做法、异常或判断依据…"
             />
-            {done &&
-              <div className="generate-prompt"><CheckCircle2 size={21} /><div><strong>已经可以生成结构化贡献</strong><p>你仍然可以继续补充，或者先生成草稿再编辑。</p></div><button className="primary-button" disabled={generating || agentLoading} onClick={generateContribution}>{generating ? '正在整理…' : '生成贡献内容'}</button></div>}
+            <AgentStatusPanel
+              status={conversationStatus}
+              loading={statusLoading}
+              error={statusError}
+              action={(
+                <button
+                  className="primary-button"
+                  disabled={!conversationStatus.submitReady || generating || agentLoading}
+                  onClick={generateContribution}
+                >
+                  {generating ? '正在整理…' : '生成贡献内容'}
+                </button>
+              )}
+            />
           </div>
         </div>
       </div>

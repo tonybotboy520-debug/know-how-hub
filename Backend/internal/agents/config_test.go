@@ -46,7 +46,20 @@ func TestSuggestionPromptDoesNotAllowFabricatedAnswers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Prompt() error = %v", err)
 	}
-	if !strings.Contains(prompt, "用户回答辅助模式") || !strings.Contains(prompt, "不得虚构") {
+	if !strings.Contains(prompt, "用户回答辅助模式") || !strings.Contains(prompt, "latest_agent_question") || !strings.Contains(prompt, "不得虚构") {
 		t.Fatalf("suggestion prompt is missing safety instructions")
+	}
+}
+
+func TestStatusPromptRequiresStructuredAssessment(t *testing.T) {
+	t.Parallel()
+
+	agent, _ := Get("task")
+	prompt, err := agent.Prompt(StatusMode)
+	if err != nil {
+		t.Fatalf("Prompt() error = %v", err)
+	}
+	if !strings.Contains(prompt, "对话状态评估模式") || !strings.Contains(prompt, `"covered"`) || !strings.Contains(prompt, `"submitReady"`) {
+		t.Fatalf("status prompt is missing assessment schema")
 	}
 }

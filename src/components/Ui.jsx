@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDemo } from '../state/DemoContext';
 
 export const statusTone = {
   征集中: 'active',
@@ -107,6 +108,59 @@ export function AgentComposer({
         </div>
       </form>
     </div>
+  );
+}
+
+export function AgentStatusPanel({
+  status,
+  loading = false,
+  error = '',
+  action = null,
+}) {
+  const progress = Math.max(0, Math.min(98, Number(status?.progress) || 35));
+  const covered = Array.isArray(status?.covered) ? status.covered : [];
+  const gaps = Array.isArray(status?.gaps) ? status.gaps : [];
+  const ready = Boolean(status?.submitReady);
+
+  return (
+    <section className={`agent-status-panel ${ready ? 'ready' : ''} ${loading ? 'updating' : ''}`} aria-live="polite">
+      <header className="agent-status-head">
+        <div>
+          <span className="page-kicker">CONVERSATION STATUS</span>
+          <strong>{status?.stage || '正在梳理'}</strong>
+        </div>
+        <div className="agent-status-score">
+          {loading && <LoaderCircle className="agent-spinner" size={14} />}
+          <span>{progress}</span><small>%</small>
+        </div>
+      </header>
+      <div className="agent-status-track" role="progressbar" aria-label="当前对话完成度" aria-valuemin="0" aria-valuemax="98" aria-valuenow={progress}>
+        <i style={{ width: `${progress}%` }} />
+      </div>
+      <p className="agent-status-summary">{loading ? 'Agent 正在重新判断本轮覆盖情况…' : status?.summary}</p>
+      <div className="agent-status-columns">
+        <div>
+          <h4><span className="status-check"><Check size={12} /></span>已覆盖</h4>
+          {covered.length
+            ? <ul>{covered.map((item) => <li key={item}>{item}</li>)}</ul>
+            : <p>完成第一轮回答后开始识别</p>}
+        </div>
+        <div>
+          <h4><span className="status-gap">!</span>待补充</h4>
+          {gaps.length
+            ? <ul>{gaps.map((item) => <li key={item}>{item}</li>)}</ul>
+            : <p>暂无关键缺口</p>}
+        </div>
+      </div>
+      <footer className="agent-status-foot">
+        <div className={`agent-submit-state ${ready ? 'ready' : ''}`}>
+          <i />
+          <span><strong>{ready ? '已达到可生成状态' : '继续对话以补齐信息'}</strong>{status?.nextAction}</span>
+        </div>
+        {action}
+      </footer>
+      {error && <p className="agent-status-error">状态暂未更新：{error}</p>}
+    </section>
   );
 }
 
@@ -222,6 +276,10 @@ export function SelectMenu({
 }
 
 export function TaskCard({ task, query = '' }) {
+  const { contributionParticipantIncrements } = useDemo();
+  const participantCount = Math.max(0, Number(task.participants) || 0)
+    + Math.max(0, Number(contributionParticipantIncrements[task.id]) || 0);
+
   return (
     <Link className="task-card reveal" to={`/task/${task.id}`}>
       <div className="task-card-top">
@@ -238,7 +296,7 @@ export function TaskCard({ task, query = '' }) {
         <div className="reward"><strong>{task.reward}</strong><span>积分悬赏</span></div>
         <div className="card-metrics">
           <span><Clock3 size={15} />{task.deadlineShort}</span>
-          <span><UsersRound size={15} />{task.participants} 人贡献</span>
+          <span><UsersRound size={15} />{participantCount} 人贡献</span>
           <ArrowUpRight size={18} className="card-arrow" />
         </div>
       </div>

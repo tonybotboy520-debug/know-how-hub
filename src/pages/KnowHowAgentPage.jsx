@@ -1,8 +1,8 @@
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, GitBranch, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, GitBranch, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { generateAgentArtifact } from '../api/agents';
-import { AgentComposer, Tag } from '../components/Ui';
+import { AgentComposer, AgentStatusPanel, Tag } from '../components/Ui';
 import { knowHows } from '../data';
 import { useAgentChat } from '../hooks/useAgentChat';
 import { useDemo } from '../state/DemoContext';
@@ -45,10 +45,17 @@ export default function KnowHowAgentPage({ mode }) {
     suggesting,
     error,
     setError,
+    conversationStatus,
+    statusLoading,
+    statusError,
     sendMessage,
     suggestAnswer,
-  } = useAgentChat({ agentId, context, greeting });
-  const userAnswerCount = messages.filter((message) => message.role === 'user').length;
+  } = useAgentChat({
+    agentId,
+    context,
+    greeting,
+    storageKey: `kh-agent-${agentId}-${knowHowId || 'new'}`,
+  });
 
   const submitChat = async (value) => {
     const sent = await sendMessage(value);
@@ -203,13 +210,20 @@ export default function KnowHowAgentPage({ mode }) {
           error={error}
           placeholder={mode === 'iteration' ? '描述需要补充、纠正或升级的内容…' : '讲讲你的真实实践、关键做法或失败经验…'}
         />
-        {userAnswerCount >= 2 && (
-          <div className="generate-prompt agent-flow-generate">
-            <CheckCircle2 size={21} />
-            <div><strong>{mode === 'iteration' ? '可以生成迭代任务草稿' : '可以生成 Know-how v1.0 草稿'}</strong><p>你仍然可以继续补充，生成后也可以逐项修改。</p></div>
-            <button className="primary-button" disabled={generating || loading} onClick={generate}>{generating ? '正在生成…' : mode === 'iteration' ? '生成迭代任务' : '生成第一个版本'}</button>
-          </div>
-        )}
+        <AgentStatusPanel
+          status={conversationStatus}
+          loading={statusLoading}
+          error={statusError}
+          action={(
+            <button
+              className="primary-button"
+              disabled={!conversationStatus.submitReady || generating || loading}
+              onClick={generate}
+            >
+              {generating ? '正在生成…' : mode === 'iteration' ? '生成迭代任务' : '生成第一个版本'}
+            </button>
+          )}
+        />
       </div>
     </div>
   );
