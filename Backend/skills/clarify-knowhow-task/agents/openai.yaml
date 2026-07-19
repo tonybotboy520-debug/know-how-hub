@@ -1,0 +1,4 @@
+interface:
+  display_name: "任务澄清 Skill"
+  short_description: "澄清真实问题并生成可执行的 Know-how 悬赏任务"
+  default_prompt: "使用 $clarify-knowhow-task 帮我把问题澄清为一份 Know-how 任务。"

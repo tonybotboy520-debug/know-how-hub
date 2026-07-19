@@ -10,6 +10,8 @@ import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import PurchasePointsPage from './pages/PurchasePointsPage';
 import WithdrawalPage from './pages/WithdrawalPage';
+import KnowHowAgentPage from './pages/KnowHowAgentPage';
+import NotificationDetailPage from './pages/NotificationDetailPage';
 import { useDemo } from './state/DemoContext';
 
 function Protected({ children }) {
@@ -25,7 +27,10 @@ export default function App() {
         <Route path="task/:taskId" element={<TaskPage />} />
         <Route path="know-how/:knowHowId" element={<KnowHowPage />} />
         <Route path="create-task" element={<Protected><CreateTaskPage /></Protected>} />
+        <Route path="create-knowhow" element={<Protected><KnowHowAgentPage mode="free-create" /></Protected>} />
+        <Route path="iterate/:knowHowId" element={<Protected><KnowHowAgentPage mode="iteration" /></Protected>} />
         <Route path="contribute/:taskId" element={<Protected><ContributePage /></Protected>} />
+        <Route path="workspace/notifications/:notificationId" element={<Protected><NotificationDetailPage /></Protected>} />
         <Route path="workspace/:section" element={<Protected><WorkspacePage /></Protected>} />
         <Route path="profile" element={<Protected><ProfilePage /></Protected>} />
         <Route path="buy-points" element={<Protected><PurchasePointsPage /></Protected>} />

@@ -110,11 +110,33 @@ const detailTracks = {
   },
 };
 
+const contributorNames = [
+  '梁知远', '沈知行', '许望', '周宁', '陈默', '顾言',
+  '林澈', '唐简', '韩屿', '苏遥', '季川', '程砚',
+  '陆青', '宋岚', '叶舟', '方予', '蒋南', '罗晴',
+  '闻溪', '江衡', '夏言', '白榆', '余安', '杜若',
+];
+
+const sectionContributorSource = (item, sectionIndex) => {
+  const seed = Array.from(item.id).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const countPattern = [1, 2, 4, 3, 5];
+  const count = Math.min(item.contributors, countPattern[(seed + sectionIndex) % countPattern.length]);
+  const start = (seed + sectionIndex * 7) % contributorNames.length;
+  const selectedNames = Array.from(
+    { length: count },
+    (_, index) => contributorNames[(start + index * 5) % contributorNames.length],
+  );
+  const visibleNames = count > 3 ? selectedNames.slice(0, 3) : selectedNames;
+  return count > 3
+    ? `来自${visibleNames.join('、')}等${count}人的贡献`
+    : `来自${visibleNames.join('、')}的贡献`;
+};
+
 export default function KnowHowPage() {
   const { knowHowId } = useParams();
   const navigate = useNavigate();
-  const { user, followedKnowHows, toggleKnowHowFollow, notify } = useDemo();
-  const item = knowHows.find((entry) => entry.id === knowHowId) || knowHows[0];
+  const { user, followedKnowHows, createdKnowHows, toggleKnowHowFollow, notify } = useDemo();
+  const item = [...createdKnowHows, ...knowHows].find((entry) => entry.id === knowHowId) || knowHows[0];
   const detail = detailTracks[item.track] || detailTracks.geo;
   const sections = detail.sections;
   const [version, setVersion] = useState(item.version);
@@ -229,7 +251,7 @@ export default function KnowHowPage() {
           <a href="#checklist"><i>04</i>{detail.checklistTitle}</a>
           <a href="#sources"><i>05</i>来源与冲突</a>
           <div className="toc-actions">
-            <button onClick={() => navigate('/create-task')}><GitBranch size={16} />基于此版本发起迭代</button>
+            <button onClick={() => navigate(`/iterate/${item.id}`)}><GitBranch size={16} />基于此版本发起迭代</button>
             <button onClick={() => notify('历史版本面板已打开')}><History size={16} />查看版本历史</button>
           </div>
         </aside>
@@ -239,13 +261,13 @@ export default function KnowHowPage() {
             <p>{detail.core}</p>
             <div className="summary-points">{detail.points.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
           </section>
-          {sections.map((section) => (
+          {sections.map((section, sectionIndex) => (
             <section className="content-section" id={section.id} key={section.id}>
               <span className="content-number">{section.number}</span>
               <h2>{section.title}</h2>
               <p className="content-lead">{section.lead}</p>
               {section.content.map((text) => <p key={text}>{text}</p>)}
-              <div className="source-note"><Quote size={15} /><span>{section.source}</span><button>查看原始贡献<ChevronRight size={13} /></button></div>
+              <div className="source-note"><Quote size={15} /><span>{sectionContributorSource(item, sectionIndex)}</span><button>查看原始贡献<ChevronRight size={13} /></button></div>
             </section>
           ))}
           <section className="content-section" id="checklist">

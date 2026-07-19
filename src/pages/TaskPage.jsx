@@ -29,20 +29,22 @@ const contributions = [
 export default function TaskPage() {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { user, followedTasks, toggleTaskFollow, notify, createdTasks } = useDemo();
+  const { user, followedTasks, toggleTaskFollow, notify, createdTasks, submittedTasks } = useDemo();
   const savedTask = createdTasks.find((item) => item.id === taskId);
   const task = tasks.find((item) => item.id === taskId) || (savedTask && {
     ...savedTask,
     brief: savedTask.outcome || savedTask.description,
-    tags: ['新发布', '待匹配'],
-    deadlineShort: '剩 7 天',
-    participants: 0,
-    updated: '刚刚',
+    tags: savedTask.tags || ['用户发布', '待匹配'],
+    deadlineShort: savedTask.deadlineShort || '新发布',
+    participants: savedTask.participants || 0,
+    updated: savedTask.updated || '刚刚',
     owner: user?.name || '我',
     avatar: user?.initials || '我',
-    outline: ['你在什么场景中遇到过类似问题？', '当时最关键的判断依据是什么？', '具体按什么步骤执行？', '哪些错误最容易让结果失效？'],
+    outline: savedTask.outline || ['你在什么场景中遇到过类似问题？', '当时最关键的判断依据是什么？', '具体按什么步骤执行？', '哪些错误最容易让结果失效？'],
+    isLocal: true,
   }) || tasks[0];
   const isFollowed = followedTasks.includes(task.id);
+  const hasContributed = Boolean(user && submittedTasks.includes(task.id));
   const completed = ['已完成', '部分完成'].includes(task.status);
 
   const guard = (action) => {
@@ -64,21 +66,35 @@ export default function TaskPage() {
 
       <section className="task-detail-hero">
         <div className="task-detail-main">
-          <div className="eyebrow-row"><StatusPill status={task.status} /><span>任务编号 KH–0716–0{tasks.indexOf(task) + 1}</span></div>
+          <div className="eyebrow-row">
+            <StatusPill status={task.status} />
+            {task.isLocal && <span className="local-task-badge">本地创建</span>}
+            <span>{task.isLocal ? '仅保存在当前浏览器' : `任务编号 KH–0716–0${tasks.indexOf(task) + 1}`}</span>
+          </div>
           <h1>{task.title}</h1>
           <p className="detail-lede">{task.brief}</p>
           <div className="tag-row">{task.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}</div>
           {task.baseVersion && <Link className="base-version" to={`/know-how/${task.baseKnowHowId || 'b2b-geo-visibility'}`}><GitMerge size={16} />基于「{task.baseVersion}」发起迭代<ChevronRight size={15} /></Link>}
           <div className="owner-row">
             <Avatar text={task.avatar} />
-            <div><strong>{task.owner}</strong><span>发起于 2026 年 7 月 12 日</span></div>
+            <div><strong>{task.owner}</strong><span>{task.isLocal ? '刚刚发布 · 本地演示数据' : '发起于 2026 年 7 月 12 日'}</span></div>
           </div>
         </div>
         <aside className="task-action-card">
           <div className="reward-large"><span>悬赏积分</span><strong>{task.reward}</strong><small>PTS</small></div>
           <div className="deadline"><Clock3 size={18} /><div><span>贡献截止</span><strong>{task.deadline}</strong></div></div>
           <div className="participation"><UsersRound size={18} /><div><span>当前已有</span><strong>{task.participants} 位实践者贡献</strong></div></div>
-          {task.status === '征集中' ? (
+          {hasContributed ? (
+            <>
+              <button
+                className="primary-button large"
+                onClick={() => guard(() => navigate(`/contribute/${task.id}`))}
+              >
+                查看我贡献的经验<ArrowRight size={18} />
+              </button>
+              <p className="sealed-note"><LockKeyhole size={14} />你的贡献已密封提交，可继续补充或编辑</p>
+            </>
+          ) : task.status === '征集中' ? (
             <>
               <button className="primary-button large" onClick={() => guard(() => navigate(`/contribute/${task.id}`))}>贡献我的经验<ArrowRight size={18} /></button>
               <p className="sealed-note"><LockKeyhole size={14} />截止前为密封提交，其他人看不到你的内容</p>

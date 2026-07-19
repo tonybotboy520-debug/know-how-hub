@@ -1,0 +1,4 @@
+interface:
+  display_name: "自由创作 Skill"
+  short_description: "把真实经历沉淀为可执行、可复用的 Know-how"
+  default_prompt: "使用 $create-practice-knowhow 帮我从真实经历创建 Know-how。"

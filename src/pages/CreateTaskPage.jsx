@@ -1,6 +1,9 @@
-import { ArrowLeft, ArrowRight, Check, ChevronRight, FilePenLine, MessageSquareMore, PencilLine, Sparkles, WandSparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronRight, FilePenLine, MessageSquareMore, Sparkles, WandSparkles } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { generateAgentArtifact } from '../api/agents';
+import { AgentComposer } from '../components/Ui';
+import { useAgentChat } from '../hooks/useAgentChat';
 import { useDemo } from '../state/DemoContext';
 
 const defaultDraft = {
@@ -13,33 +16,95 @@ const defaultDraft = {
   reward: 680,
 };
 
+const taskAgentContext = {
+  existingKnowHows: [
+    {
+      title: 'B2B 品牌 GEO 可见度诊断与评分手册 v1.0',
+      match: 82,
+      covered: ['基础问题集', '品牌提及、推荐位置、引用与情感四维评分'],
+      gaps: ['跨平台抽样', '波动排查', '业务转化关联'],
+    },
+  ],
+  defaultDeadline: '2026-07-25',
+  defaultReward: 680,
+};
+
 export default function CreateTaskPage() {
   const navigate = useNavigate();
-  const { points, setPoints, createdTasks, setCreatedTasks, notify } = useDemo();
-  const [path, setPath] = useState(null);
-  const [step, setStep] = useState(1);
-  const [draft, setDraft] = useState(defaultDraft);
-  const [chatIndex, setChatIndex] = useState(0);
+  const location = useLocation();
+  const { points, setPoints, setCreatedTasks, notify } = useDemo();
+  const seededDraft = location.state?.agentDraft;
+  const [path, setPath] = useState(seededDraft ? 'agent' : null);
+  const [step, setStep] = useState(seededDraft ? 2 : 1);
+  const [draft, setDraft] = useState(seededDraft ? { ...defaultDraft, ...seededDraft } : defaultDraft);
+  const [chatInput, setChatInput] = useState('');
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [draftError, setDraftError] = useState('');
+  const {
+    messages,
+    loading: agentLoading,
+    suggesting,
+    error: agentError,
+    setError: setAgentError,
+    sendMessage,
+    suggestAnswer,
+  } = useAgentChat({
+    agentId: 'task',
+    context: taskAgentContext,
+    greeting: '先用一句话告诉我：你现在最想解决的具体问题是什么？',
+  });
 
   const update = (field, value) => setDraft((item) => ({ ...item, [field]: value }));
   const insufficient = Number(draft.reward) > points;
+  const userAnswerCount = messages.filter((message) => message.role === 'user').length;
 
-  const generate = () => {
+  const submitChat = async (value) => {
+    const sent = await sendMessage(value);
+    if (sent) setChatInput('');
+  };
+
+  const suggestChatAnswer = async () => {
+    const suggestion = await suggestAnswer(chatInput);
+    if (suggestion) setChatInput(suggestion);
+  };
+
+  const generate = async () => {
     setPublishing(true);
-    window.setTimeout(() => {
-      setPublishing(false);
+    setDraftError('');
+    try {
+      const artifact = await generateAgentArtifact('task', messages, taskAgentContext);
+      setDraft((current) => ({ ...current, ...artifact }));
       setStep(2);
-    }, 1000);
+    } catch (error) {
+      setDraftError(error.message);
+      setAgentError(error.message);
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const publish = () => {
     if (insufficient) return;
     setPublishing(true);
     window.setTimeout(() => {
-      setPoints(points - Number(draft.reward));
-      setCreatedTasks([...createdTasks, { ...draft, id: `local-${Date.now()}`, status: '征集中' }]);
+      const localTask = {
+        ...draft,
+        id: `local-${Date.now()}`,
+        brief: draft.description,
+        tags: ['用户发布', '待匹配'],
+        deadlineShort: '新发布',
+        participants: 0,
+        updated: '刚刚',
+        status: '征集中',
+        owner: '钟源',
+        avatar: '钟',
+        outline: ['你在什么场景中遇到过类似问题？', '当时最关键的判断依据是什么？', '具体按什么步骤执行？', '哪些错误最容易让结果失效？'],
+        isLocal: true,
+        createdAt: new Date().toISOString(),
+      };
+      setPoints((current) => current - Number(draft.reward));
+      setCreatedTasks((current) => [localTask, ...current]);
       setPublishing(false);
       setPublished(true);
       notify(`${draft.reward} 积分已冻结，任务发布成功`);
@@ -93,14 +158,6 @@ export default function CreateTaskPage() {
   }
 
   if (path === 'agent' && step === 1) {
-    const chat = [
-      { who: 'agent', text: '先用一句话告诉我：你现在最想解决的具体问题是什么？' },
-      { who: 'user', text: '我们正在做企业 AI 产品的 GEO，但不同同学测出来的品牌可见度完全不能比较，我想先统一诊断方法。' },
-      { who: 'agent', text: '明白。当前差异主要来自测试平台、用户问题、时间窗口，还是评分标准？' },
-      { who: 'user', text: '都有。有人只看品牌有没有被提到，有人看推荐排名，还有人只测一个模型，也没有保存引用来源和测试版本。' },
-      { who: 'agent', text: '我找到一份相关的「B2B 品牌 GEO 可见度诊断与评分手册 v1.0」，匹配度 82%。它覆盖基础评分，但缺少跨平台抽样、波动排查和业务转化关联。我建议基于这些缺口发布迭代悬赏。' },
-    ];
-    const visible = chat.slice(0, Math.min(chatIndex + 2, chat.length));
     return (
       <div className="agent-builder">
         <header className="builder-header">
@@ -110,18 +167,28 @@ export default function CreateTaskPage() {
         </header>
         <div className="chat-stage">
           <div className="agent-identity"><span className="agent-glyph"><Sparkles size={20} /></span><div><h1>把真实问题说清楚，<br />是得到好答案的一半。</h1><p>我会先理解你的目标，再检查市场里是否已有答案。</p></div></div>
-          <div className="chat-list">{visible.map((item, index) => (
-            <div className={`chat-bubble ${item.who}`} key={`${item.who}-${index}`}>
-              <span>{item.who === 'agent' ? <Sparkles size={16} /> : '钟'}</span><p>{item.text}</p>
+          <div className="chat-list" aria-live="polite">{messages.map((message, index) => (
+            <div className={`chat-bubble ${message.role === 'assistant' ? 'agent' : 'user'}`} key={`${message.role}-${index}`}>
+              <span>{message.role === 'assistant' ? <Sparkles size={16} /> : '钟'}</span><p>{message.content}</p>
             </div>
-          ))}</div>
-          {chatIndex < 3 ? (
-            <button className="chat-continue" onClick={() => setChatIndex((value) => Math.min(value + 2, 3))}>使用预设回答继续<ArrowRight size={17} /></button>
-          ) : (
+          ))}
+            {agentLoading && <div className="chat-bubble agent thinking"><span><Sparkles size={16} /></span><p>正在理解并整理你的问题…</p></div>}
+          </div>
+          <AgentComposer
+            value={chatInput}
+            onChange={setChatInput}
+            onSubmit={submitChat}
+            onSuggest={suggestChatAnswer}
+            loading={agentLoading}
+            suggesting={suggesting}
+            error={agentError || draftError}
+            placeholder="描述你的真实问题、背景或限制…"
+          />
+          {userAnswerCount >= 2 && (
             <div className="match-panel">
               <div><span>82%</span><p><strong>找到相关 Know-how</strong>B2B 品牌 GEO 可见度诊断与评分手册 v1.0</p></div>
               <ul><li><Check size={14} />已覆盖：基础问题集与四维评分</li><li><i>!</i>待补充：跨平台抽样、波动排查、转化关联</li></ul>
-              <button className="primary-button" onClick={generate}>{publishing ? '正在生成任务草稿…' : '基于缺口生成迭代任务'}<ArrowRight size={17} /></button>
+              <button className="primary-button" disabled={publishing || agentLoading} onClick={generate}>{publishing ? '正在生成任务草稿…' : '基于对话生成任务草稿'}<ArrowRight size={17} /></button>
             </div>
           )}
         </div>

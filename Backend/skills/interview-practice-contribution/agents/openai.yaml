@@ -1,0 +1,4 @@
+interface:
+  display_name: "实践访谈 Skill"
+  short_description: "通过深度访谈提取真实实践并整理为可验证的结构化经验贡献"
+  default_prompt: "使用 $interview-practice-contribution 访谈我的真实经验并整理贡献。"

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { notifications } from '../data';
 import { useDemo } from '../state/DemoContext';
 import BrandLogo from './BrandLogo';
 
@@ -22,7 +23,7 @@ const nav = [
   { to: '/workspace/tasks', icon: FileStack, label: '我的任务' },
   { to: '/workspace/knowhow', icon: Sparkles, label: '我的 Know-how' },
   { to: '/workspace/following', icon: BookMarked, label: '我的关注' },
-  { to: '/workspace/notifications', icon: Bell, label: '通知', badge: true },
+  { to: '/workspace/notifications', icon: Bell, label: '消息', badge: true },
 ];
 
 export default function Layout() {
@@ -30,7 +31,8 @@ export default function Layout() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isDetail = location.pathname.startsWith('/task/') || location.pathname.startsWith('/know-how/');
+  const isDetail = location.pathname.startsWith('/task/') || location.pathname.startsWith('/know-how/') || location.pathname.startsWith('/workspace/notifications/');
+  const unreadNotificationCount = notifications.filter((item) => item.unread).length;
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -56,7 +58,7 @@ export default function Layout() {
             >
               <Icon size={19} strokeWidth={1.8} />
               <span>{label}</span>
-              {badge && <i className="nav-badge">2</i>}
+              {badge && <i className="nav-badge">{unreadNotificationCount}</i>}
             </NavLink>
           ))}
         </nav>
