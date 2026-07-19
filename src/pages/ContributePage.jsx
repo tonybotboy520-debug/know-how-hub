@@ -84,6 +84,7 @@ export default function ContributePage() {
     error: agentError,
     setError: setAgentError,
     conversationStatus,
+    canGenerate,
     statusLoading,
     statusError,
     sendMessage,
@@ -316,12 +317,13 @@ export default function ContributePage() {
             />
             <AgentStatusPanel
               status={conversationStatus}
+              canGenerate={canGenerate}
               loading={statusLoading}
               error={statusError}
               action={(
                 <button
                   className="primary-button"
-                  disabled={!conversationStatus.submitReady || generating || agentLoading}
+                  disabled={!canGenerate || generating || agentLoading}
                   onClick={generateContribution}
                 >
                   {generating ? '正在整理…' : '生成贡献内容'}

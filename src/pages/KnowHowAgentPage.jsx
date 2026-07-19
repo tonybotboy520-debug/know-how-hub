@@ -46,6 +46,7 @@ export default function KnowHowAgentPage({ mode }) {
     error,
     setError,
     conversationStatus,
+    canGenerate,
     statusLoading,
     statusError,
     sendMessage,
@@ -212,12 +213,13 @@ export default function KnowHowAgentPage({ mode }) {
         />
         <AgentStatusPanel
           status={conversationStatus}
+          canGenerate={canGenerate}
           loading={statusLoading}
           error={statusError}
           action={(
             <button
               className="primary-button"
-              disabled={!conversationStatus.submitReady || generating || loading}
+              disabled={!canGenerate || generating || loading}
               onClick={generate}
             >
               {generating ? '正在生成…' : mode === 'iteration' ? '生成迭代任务' : '生成第一个版本'}

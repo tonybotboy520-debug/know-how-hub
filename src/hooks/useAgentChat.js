@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { analyzeAgentConversation, chatWithAgent, suggestAgentAnswer } from '../api/agents';
 
+export const MIN_GENERATE_TURNS = 3;
+
 const readStoredMessages = (storageKey) => {
   if (!storageKey) return null;
   try {
@@ -12,7 +14,7 @@ const readStoredMessages = (storageKey) => {
 };
 
 const initialConversationStatus = (userTurns = 0) => ({
-  progress: userTurns ? Math.min(94, Math.round(35 + 63 * (1 - Math.exp(-0.55 * userTurns)))) : 35,
+  progress: userTurns ? Math.min(94, Math.round(35 + 63 * (1 - Math.exp(-0.55 * userTurns)))) : 0,
   turn: userTurns,
   stage: userTurns ? '等待更新' : '等待开始',
   summary: userTurns ? '继续对话后，Agent 将更新覆盖情况。' : '回答当前问题后，Agent 将实时判断信息覆盖情况。',
@@ -23,6 +25,7 @@ const initialConversationStatus = (userTurns = 0) => ({
 });
 
 const readStoredStatus = (storageKey, userTurns) => {
+  if (userTurns === 0) return initialConversationStatus(0);
   if (!storageKey) return initialConversationStatus(userTurns);
   try {
     const stored = JSON.parse(localStorage.getItem(`${storageKey}-status`));
@@ -158,6 +161,7 @@ export function useAgentChat({
     loading,
     suggesting,
     conversationStatus,
+    canGenerate: messages.filter((message) => message.role === 'user').length >= MIN_GENERATE_TURNS,
     statusLoading,
     statusError,
     error,

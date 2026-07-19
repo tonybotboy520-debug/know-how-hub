@@ -14,6 +14,7 @@ const pairSeeds = [
   ['marketing', 'conversational-brand-ad', 'AI 对话式品牌广告怎样设计问答路径并推动用户留资？', '在回答产品问题的同时完成需求判断、异议处理和转化引导，又不让用户感到被强行推销。', ['对话广告', '用户转化', 'AI 品牌营销'], 670, '萃取中', 'conversational-ad-conversion', '对话式品牌广告转化路径设计手册', '覆盖开场、追问、产品解释、异议处理和留资节点，兼顾用户体验与商业转化。', ['对话设计', '品牌广告', '转化路径']],
   ['marketing', 'vibe-landing-page', '广告落地页如何用 Vibe Coding 快速上线并完成 A/B 测试？', '让市场人员自主制作页面，同时保障组件复用、数据埋点、发布安全和失败回滚。', ['Vibe Coding', '落地页', 'A/B 测试'], 560, '征集中', 'vibe-landing-page-workflow', '市场人员 Vibe Coding 落地页工作流', '包含需求模板、组件规范、埋点检查、A/B 实验、上线审批和一键回滚方法。', ['Vibe Coding', '增长实验', '落地页']],
   ['sales', 'vibe-sales-crm', '销售团队如何用 Vibe Coding 搭建轻量商机管理系统？', '管理客户、联系人、商机阶段、跟进记录和预计回款，同时保持字段简单、团队愿意使用。', ['Vibe Coding', '销售管理', 'CRM'], 780, '征集中', 'lightweight-sales-system', '轻量销售管理系统搭建手册', '定义最小数据结构、权限、商机状态和异常检查，让业务团队可以快速搭建并持续迭代。', ['销售系统', 'Vibe Coding', 'CRM']],
+  ['sales', 'sales-quote-approval-vibe', '销售团队如何用 Vibe Coding 搭建可追踪的报价与折扣审批台？', '将报价版本、折扣阈值、审批链路和例外处理统一起来，让销售更快响应客户，同时保留完整过程记录。', ['Vibe Coding', '报价审批', '销售运营'], 720, '已完成', 'sales-quote-approval-playbook', '销售报价与折扣审批台搭建手册', '以最小字段、审批规则、异常升级和审计日志为核心，搭建可供销售团队持续迭代的轻量审批工具。', ['销售系统', '审批流程', 'Vibe Coding']],
   ['sales', 'lead-routing-rules', '线索量增加后，怎样自动分配并处理撞单和超时未跟进？', '建立公平、可解释且能处理地域、行业、客户归属和销售请假等例外情况的规则。', ['线索分配', '销售运营', '自动化'], 590, '已完成', 'lead-routing-conflict-rules', '销售线索分配与冲突处理规则库', '覆盖地域、行业、客户归属、超时回收、撞单仲裁和重新分配等关键场景。', ['销售运营', '线索治理', '规则库']],
   ['sales', 'ai-poc-qualification', '企业 AI 产品销售怎样在首轮访谈中判断客户是否值得进入 POC？', '快速判断场景价值、数据条件、客户决策链、预算意愿和潜在交付风险。', ['企业 AI', 'POC', '销售访谈'], 690, '征集中', 'ai-poc-qualification-scorecard', '企业 AI 项目 POC 资格评估方法', '通过结构化访谈和评分卡判断项目是否具备价值、数据、角色和商业条件。', ['POC 评估', '企业销售', '评分卡']],
   ['sales', 'ai-presales-proposal', '售前怎样基于知识库快速生成客户版方案，又避免参数和案例编造？', '方案需要引用正确的产品能力、客户案例和实施边界，并保留可供售前复核的事实依据。', ['AI 售前', '方案生成', '事实校验'], 830, '已完成', 'ai-presales-proposal-workflow', '企业 AI 售前方案生成与事实校验流程', '规定知识检索、内容生成、证据引用、参数核对和人工审批节点，降低方案幻觉风险。', ['售前方案', '知识库', '事实校验']],
@@ -70,6 +71,11 @@ const trackMeta = {
 };
 
 const owners = ['周宁', '梁知远', '陈默', '顾言', '林澈', '许望', '唐简', '沈知行'];
+const currentUserPublishedTaskIds = new Set([
+  'geo-visibility-baseline',
+  'vibe-sales-crm',
+  'sales-quote-approval-vibe',
+]);
 
 export const tasks = pairSeeds.map((seed, index) => {
   const [track, id, title, brief, tags, reward, status, knowHowId] = seed;
@@ -90,6 +96,7 @@ export const tasks = pairSeeds.map((seed, index) => {
     updated: id === 'geo-visibility-baseline' ? '4 天前' : index < 4 ? `${12 + index * 17} 分钟前` : `${1 + (index % 6)} 天前`,
     owner: owners[index % owners.length],
     avatar: owners[index % owners.length][0],
+    isPublishedByCurrentUser: currentUserPublishedTaskIds.has(id),
     outline: meta.outline,
     result: meta.result,
     confidenceNote: meta.confidence,

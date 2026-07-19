@@ -48,6 +48,12 @@ export default function MarketPage() {
     setQuery(searchInput.trim());
   };
 
+  const clearSearch = () => {
+    setSearchInput('');
+    setQuery('');
+    inputRef.current?.focus();
+  };
+
   const useSuggestedSearch = (value) => {
     setSearchInput(value);
     setQuery(value);
@@ -138,6 +144,11 @@ export default function MarketPage() {
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="搜索任务、Know-how、领域或实践方法…"
               />
+              {searchInput.trim() && (
+                <button className="market-search-clear" type="button" onClick={clearSearch} aria-label="清空搜索关键词">
+                  <X size={16} />
+                </button>
+              )}
               <button type="submit"><Search size={17} />搜索 Know-how</button>
             </form>
             <div className="trending">

@@ -115,12 +115,16 @@ export function AgentStatusPanel({
   status,
   loading = false,
   error = '',
+  canGenerate = false,
   action = null,
 }) {
-  const progress = Math.max(0, Math.min(98, Number(status?.progress) || 35));
+  const rawProgress = Number(status?.progress);
+  const progress = Number.isFinite(rawProgress) ? Math.max(0, Math.min(98, rawProgress)) : 0;
   const covered = Array.isArray(status?.covered) ? status.covered : [];
   const gaps = Array.isArray(status?.gaps) ? status.gaps : [];
-  const ready = Boolean(status?.submitReady);
+  const turn = Number(status?.turn) || 0;
+  const ready = canGenerate;
+  const turnsRemaining = Math.max(0, 3 - turn);
 
   return (
     <section className={`agent-status-panel ${ready ? 'ready' : ''} ${loading ? 'updating' : ''}`} aria-live="polite">
@@ -155,7 +159,10 @@ export function AgentStatusPanel({
       <footer className="agent-status-foot">
         <div className={`agent-submit-state ${ready ? 'ready' : ''}`}>
           <i />
-          <span><strong>{ready ? '已达到可生成状态' : '继续对话以补齐信息'}</strong>{status?.nextAction}</span>
+          <span>
+            <strong>{ready ? '已完成 3 轮对话，可以生成草稿' : `再完成 ${turnsRemaining} 轮对话即可生成`}</strong>
+            {ready ? '你仍可继续补充，生成后也可以编辑。' : status?.nextAction}
+          </span>
         </div>
         {action}
       </footer>

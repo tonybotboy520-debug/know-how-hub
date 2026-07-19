@@ -48,6 +48,7 @@ export default function CreateTaskPage() {
     error: agentError,
     setError: setAgentError,
     conversationStatus,
+    canGenerate,
     statusLoading,
     statusError,
     sendMessage,
@@ -189,12 +190,13 @@ export default function CreateTaskPage() {
           />
           <AgentStatusPanel
             status={conversationStatus}
+            canGenerate={canGenerate}
             loading={statusLoading}
             error={statusError}
             action={(
               <button
                 className="primary-button"
-                disabled={!conversationStatus.submitReady || publishing || agentLoading}
+                disabled={!canGenerate || publishing || agentLoading}
                 onClick={generate}
               >
                 {publishing ? '正在生成任务草稿…' : '基于对话生成任务草稿'}<ArrowRight size={17} />

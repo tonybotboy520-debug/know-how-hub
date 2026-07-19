@@ -62,7 +62,11 @@ export default function WorkspacePage() {
   }, [section]);
 
   const published = useMemo(() => {
-    const base = [tasks.find((item) => item.id === 'geo-visibility-baseline'), tasks.find((item) => item.id === 'vibe-sales-crm')];
+    const base = [
+      tasks.find((item) => item.id === 'geo-visibility-baseline'),
+      tasks.find((item) => item.id === 'vibe-sales-crm'),
+      tasks.find((item) => item.id === 'sales-quote-approval-vibe'),
+    ];
     const local = createdTasks.map((task) => ({
       id: task.id,
       title: task.title,
@@ -107,11 +111,14 @@ export default function WorkspacePage() {
                 <p>{item.detail}</p>
                 <span>{item.time}</span>
               </div>
-              {typeof item.pointsChange === 'number' ? (
-                <span className={`notification-points-change ${item.pointsChange < 0 ? 'negative' : 'positive'}`}>
-                  {item.pointsChange > 0 ? '+' : '−'}{Math.abs(item.pointsChange).toLocaleString()}<small>积分</small>
-                </span>
-              ) : <ArrowRight size={17} />}
+              <span className="notification-item-action">
+                {typeof item.pointsChange === 'number' && (
+                  <span className={`notification-points-change ${item.pointsChange < 0 ? 'negative' : 'positive'}`}>
+                    {item.pointsChange > 0 ? '+' : '−'}{Math.abs(item.pointsChange).toLocaleString()}<small>积分</small>
+                  </span>
+                )}
+                <ArrowRight size={17} />
+              </span>
             </Link>
           );
         })}</div>

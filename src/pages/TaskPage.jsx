@@ -48,6 +48,7 @@ export default function TaskPage() {
   const participantCount = Math.max(0, Number(task.participants) || 0)
     + Math.max(0, Number(contributionParticipantIncrements[task.id]) || 0);
   const completed = ['已完成', '部分完成'].includes(task.status);
+  const isMyPublishedTask = task.isPublishedByCurrentUser || Boolean(savedTask);
 
   const guard = (action) => {
     if (!user) return navigate('/login');
@@ -86,7 +87,14 @@ export default function TaskPage() {
           <div className="reward-large"><span>悬赏积分</span><strong>{task.reward}</strong><small>PTS</small></div>
           <div className="deadline"><Clock3 size={18} /><div><span>贡献截止</span><strong>{task.deadline}</strong></div></div>
           <div className="participation"><UsersRound size={18} /><div><span>当前已有</span><strong>{participantCount} 位实践者贡献</strong></div></div>
-          {hasContributed ? (
+          {isMyPublishedTask && completed && task.knowHowId ? (
+            <div className="task-completed-actions">
+              <Link className="outline-button task-iteration-button" to={`/iterate/${task.knowHowId}`}>
+                <GitMerge size={17} />发起新一轮 Know-how 迭代
+              </Link>
+              <Link className="primary-button large" to={`/know-how/${task.knowHowId}`}>查看最终 Know-how<ArrowRight size={18} /></Link>
+            </div>
+          ) : hasContributed ? (
             <>
               <button
                 className="primary-button large"
