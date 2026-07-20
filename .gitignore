@@ -1,10 +1,13 @@
-node_modules/
-dist/
-.vite/
-*.log
 .DS_Store
 .playwright-cli/
 output/
-/README.md
-design-qa.md
-*.command
+
+# Local product and collaboration documents are not part of the source repository.
+AGENTS.md
+PRD/
+产品思路.md
+产品汇报.md
+产品汇报/
+
+# Local launcher; source deployment uses the commands documented in each project.
+启动 Know-how Hub.command
