@@ -26,7 +26,7 @@ func main() {
 
 	host := envOrDefault("HOST", "127.0.0.1")
 	port := envOrDefault("PORT", "8787")
-	model := strings.TrimSpace(os.Getenv("ZHINAO_MODEL"))
+	model := envOrDefault("ZHINAO_MODEL", "deepseek/deepseek-v4-flash")
 	apiKey := strings.TrimSpace(os.Getenv("ZHINAO_API_KEY"))
 	if err := agents.ValidateSkills(); err != nil {
 		log.Fatalf("Agent 技能配置校验失败：%v", err)

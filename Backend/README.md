@@ -39,7 +39,7 @@ go run ./cmd/server
 ```dotenv
 ZHINAO_API_BASE_URL=https://api.360.cn/v1
 ZHINAO_API_KEY=replace-with-your-api-key
-ZHINAO_MODEL=deepseek/deepseek-chat
+ZHINAO_MODEL=deepseek/deepseek-v4-flash
 HOST=127.0.0.1
 PORT=8787
 ALLOWED_ORIGINS=http://localhost:5174,http://127.0.0.1:5174,https://know-how-hub-web-tonybotboy520.onrender.com,https://know-how-hub.vercel.app

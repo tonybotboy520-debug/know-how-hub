@@ -28,7 +28,7 @@ func (f *fakeClient) Complete(_ context.Context, request zhinao.CompletionReques
 func newTestRouter(client Client) http.Handler {
 	gin.SetMode(gin.TestMode)
 	return NewRouter(Config{
-		Model:          "deepseek/deepseek-chat",
+		Model:          "deepseek/deepseek-v4-flash",
 		Configured:     true,
 		AllowedOrigins: []string{"http://localhost:5173"},
 	}, client)
@@ -67,7 +67,7 @@ func TestChat(t *testing.T) {
 
 	client := &fakeClient{result: zhinao.CompletionResult{
 		Content:   "请补充验证标准。",
-		Model:     "deepseek/deepseek-chat",
+		Model:     "deepseek/deepseek-v4-flash",
 		Usage:     map[string]any{"total_tokens": 16},
 		RequestID: "chat-1",
 	}}
@@ -99,7 +99,7 @@ func TestGenerate(t *testing.T) {
 
 	client := &fakeClient{result: zhinao.CompletionResult{
 		Content: `{"title":"任务标题","reward":680}`,
-		Model:   "deepseek/deepseek-chat",
+		Model:   "deepseek/deepseek-v4-flash",
 	}}
 	router := newTestRouter(client)
 
@@ -130,7 +130,7 @@ func TestSuggestAnswer(t *testing.T) {
 
 	client := &fakeClient{result: zhinao.CompletionResult{
 		Content:   "我负责了需求访谈，但项目结果还需要补充。",
-		Model:     "deepseek/deepseek-chat",
+		Model:     "deepseek/deepseek-v4-flash",
 		RequestID: "suggest-1",
 	}}
 	router := newTestRouter(client)
@@ -180,7 +180,7 @@ func TestSuggestTargetsLatestAssistantQuestion(t *testing.T) {
 
 	client := &fakeClient{result: zhinao.CompletionResult{
 		Content: "我先确认了业务目标，再让用户描述最近一次具体经历。",
-		Model:   "deepseek/deepseek-chat",
+		Model:   "deepseek/deepseek-v4-flash",
 	}}
 	router := newTestRouter(client)
 
@@ -213,7 +213,7 @@ func TestSuggestWithoutUserFactsFallsBackToEditableTemplate(t *testing.T) {
 
 	client := &fakeClient{result: zhinao.CompletionResult{
 		Content: "我去年负责了一个具体项目，并取得了显著结果。",
-		Model:   "deepseek/deepseek-chat",
+		Model:   "deepseek/deepseek-v4-flash",
 	}}
 	router := newTestRouter(client)
 
@@ -276,7 +276,7 @@ func TestConversationStatus(t *testing.T) {
 			"submitReady": false,
 			"nextAction": "补充如何判断结果有效"
 		}`,
-		Model:     "deepseek/deepseek-chat",
+		Model:     "deepseek/deepseek-v4-flash",
 		RequestID: "status-1",
 	}}
 	router := newTestRouter(client)

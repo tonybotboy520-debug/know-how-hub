@@ -25,14 +25,14 @@ func TestComplete(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if request["model"] != "deepseek/deepseek-chat" {
+		if request["model"] != "deepseek/deepseek-v4-flash" {
 			t.Fatalf("model = %v", request["model"])
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{
 			"id":"request-1",
-			"model":"deepseek/deepseek-chat",
+			"model":"deepseek/deepseek-v4-flash",
 			"choices":[{"message":{"role":"assistant","content":" 已收到 "}}],
 			"usage":{"total_tokens":12}
 		}`))
@@ -42,7 +42,7 @@ func TestComplete(t *testing.T) {
 	client := NewClient(Config{
 		BaseURL: upstream.URL,
 		APIKey:  "test-key",
-		Model:   "deepseek/deepseek-chat",
+		Model:   "deepseek/deepseek-v4-flash",
 		Timeout: time.Second,
 	})
 	result, err := client.Complete(context.Background(), CompletionRequest{
